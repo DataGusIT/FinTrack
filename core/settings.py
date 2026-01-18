@@ -108,8 +108,7 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- MODELO DE AUTENTICAÇÃO ---
-# Aponta para o modelo de usuário customizado (Recomendado para escalabilidade)
-# AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 # --- DIVERSOS ---
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
