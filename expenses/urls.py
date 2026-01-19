@@ -25,4 +25,6 @@ urlpatterns = [
     # Recorrencias 
     path('recorrentes/', views.recurring_list, name='recurring_list'),
     path('recorrentes/novo/', views.recurring_create, name='recurring_create'),
+
+    path('exportar/csv/', views.export_transactions_csv, name='export_csv'),
 ]

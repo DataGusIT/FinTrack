@@ -4,6 +4,9 @@ from .models import Transaction, Category, Budget, RecurringTransaction
 from .forms import TransactionForm, CategoryForm, BudgetForm, RecurringTransactionForm
 from .utils import generate_recurring_transactions
 from django.db.models import Q
+import csv
+from django.http import HttpResponse
+from datetime import datetime 
 
 @login_required
 def transaction_create(request):
@@ -192,3 +195,48 @@ def recurring_create(request):
     else:
         form = RecurringTransactionForm(user=request.user)
     return render(request, 'expenses/recurring_form.html', {'form': form})
+
+@login_required
+def export_transactions_csv(request):
+    # 1. Pegamos os dados filtrados (reutilizando a lógica da listagem)
+    transactions = Transaction.objects.filter(user=request.user)
+
+    # Aplicar os mesmos filtros do request.GET
+    search = request.GET.get('search')
+    category = request.GET.get('category')
+    t_type = request.GET.get('type')
+    status = request.GET.get('status')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if search: transactions = transactions.filter(description__icontains=search)
+    if category: transactions = transactions.filter(category_id=category)
+    if t_type: transactions = transactions.filter(type=t_type)
+    if status: transactions = transactions.filter(status=status)
+    if start_date: transactions = transactions.filter(date__gte=start_date)
+    if end_date: transactions = transactions.filter(date__lte=end_date)
+
+    # 2. Configurar a resposta do navegador para download de arquivo
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="extrato_fintrack_{datetime.now().strftime("%Y%m%d")}.csv"'
+    # Garantir suporte a caracteres brasileiros no Excel
+    response.write(u'\ufeff'.encode('utf8')) 
+
+    writer = csv.writer(response, delimiter=';')
+    
+    # Cabeçalho do Excel
+    writer.writerow(['Data', 'Descrição', 'Categoria', 'Tipo', 'Valor', 'Status', 'Método'])
+
+    # Dados
+    for tx in transactions:
+        writer.writerow([
+            tx.date.strftime("%d/%m/%Y"),
+            tx.description,
+            tx.category.name if tx.category else 'Sem Categoria',
+            tx.get_type_display(),
+            tx.amount,
+            tx.get_status_display(),
+            tx.get_payment_method_display()
+        ])
+
+    return response
