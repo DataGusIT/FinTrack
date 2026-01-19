@@ -1,5 +1,5 @@
 from django import forms
-from .models import Transaction, Category, Budget, PaymentMethod
+from .models import Transaction, Category, Budget, PaymentMethod, RecurringTransaction
 
 class TransactionForm(forms.ModelForm):
     class Meta:
@@ -58,3 +58,24 @@ class PaymentMethodForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Ex: Banco Inter'}),
             'type': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
         }
+
+class RecurringTransactionForm(forms.ModelForm):
+    class Meta:
+        model = RecurringTransaction
+        fields = ['description', 'amount', 'type', 'category', 'payment_method', 'frequency', 'start_date', 'end_date']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full p-2 border rounded'}),
+            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full p-2 border rounded'}),
+            'description': forms.TextInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Ex: Assinatura Netflix'}),
+            'amount': forms.NumberInput(attrs={'class': 'w-full p-2 border rounded', 'step': '0.01'}),
+            'type': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+            'category': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+            'payment_method': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+            'frequency': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['category'].queryset = Category.objects.filter(user=user)

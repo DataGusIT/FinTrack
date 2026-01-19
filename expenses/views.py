@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Transaction, Category, Budget
-from .forms import TransactionForm, CategoryForm, BudgetForm
+from .models import Transaction, Category, Budget, RecurringTransaction
+from .forms import TransactionForm, CategoryForm, BudgetForm, RecurringTransactionForm
+from .utils import generate_recurring_transactions
 from django.db.models import Q
 
 @login_required
@@ -166,3 +167,28 @@ def budget_delete(request, pk):
         budget.delete()
         return redirect('expenses:budget_list')
     return render(request, 'expenses/budget_confirm_delete.html', {'budget': budget})
+
+@login_required
+def recurring_list(request):
+    # Antes de listar, processamos as automações para garantir dados atualizados
+    generate_recurring_transactions() 
+    
+    recurrences = RecurringTransaction.objects.filter(user=request.user)
+    return render(request, 'expenses/recurring_list.html', {'recurrences': recurrences})
+
+@login_required
+def recurring_create(request):
+    if request.method == 'POST':
+        form = RecurringTransactionForm(request.POST, user=request.user)
+        if form.is_valid():
+            rec = form.save(commit=False)
+            rec.user = request.user
+            rec.save()
+            
+            # Gera as transações retroativas se a data de início já passou
+            generate_recurring_transactions()
+            
+            return redirect('expenses:recurring_list')
+    else:
+        form = RecurringTransactionForm(user=request.user)
+    return render(request, 'expenses/recurring_form.html', {'form': form})
