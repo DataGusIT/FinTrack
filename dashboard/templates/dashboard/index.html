@@ -41,6 +41,7 @@
                 <th class="px-6 py-4">Categoria</th>
                 <th class="px-6 py-4">Data</th>
                 <th class="px-6 py-4">Valor</th>
+                <th class="px-6 py-4 text-center">Ações</th> <!-- Nova Coluna -->
             </tr>
         </thead>
         <tbody class="divide-y">
@@ -53,6 +54,15 @@
                 <td class="px-6 py-4 text-gray-500">{{ tx.date|date:"d/m/Y" }}</td>
                 <td class="px-6 py-4 font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
                     {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
+                </td>
+                <!-- Botões de Ação -->
+                <td class="px-6 py-4 text-center space-x-2">
+                    <a href="{% url 'expenses:update' tx.pk %}" class="text-blue-600 hover:text-blue-900" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'expenses:delete' tx.pk %}" class="text-red-600 hover:text-red-900" title="Excluir">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
                 </td>
             </tr>
             {% empty %}
