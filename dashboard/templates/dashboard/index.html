@@ -198,6 +198,16 @@
     </div>
 </div>
 
+<div class="mt-8 bg-white p-6 rounded-xl shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-bold text-gray-800">Evolução Mensal (Receitas vs Despesas)</h3>
+        <span class="text-xs text-gray-400">Últimos 6 meses</span>
+    </div>
+    <div class="h-64">
+        <canvas id="evolutionChart"></canvas>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -220,6 +230,47 @@
                         legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
                     },
                     cutout: '75%'
+                }
+            });
+        }
+        
+        // NOVO: Gráfico de Evolução
+        const evoCtx = document.getElementById('evolutionChart');
+        if (evoCtx) {
+            new Chart(evoCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ evolution_labels|safe }},
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: {{ evolution_income|safe }},
+                            backgroundColor: '#10b981', // green-500
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Despesas',
+                            data: {{ evolution_expense|safe }},
+                            backgroundColor: '#ef4444', // red-500
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { display: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', align: 'end' }
+                    }
                 }
             });
         }
