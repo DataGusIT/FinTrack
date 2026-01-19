@@ -1,19 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<!-- Cabeçalho de Ações -->
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold text-gray-800">Resumo Financeiro</h2>
-    <a href="{% url 'expenses:create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
-        <i class="fas fa-plus mr-2"></i>Nova Transação
-    </a>
+    <div class="space-x-2">
+        <a href="{% url 'expenses:category_list' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-200 transition">
+            <i class="fas fa-tags mr-2"></i>Categorias
+        </a>
+        <a href="{% url 'expenses:create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
+            <i class="fas fa-plus mr-2"></i>Nova Transação
+        </a>
+    </div>
 </div>
 
+<!-- Cards de Resumo -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <!-- Card Saldo Geral -->
     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
         <p class="text-sm text-gray-500 uppercase font-bold">Saldo do Mês</p>
-        <h3 class="text-3xl font-bold">R$ {{ balance }}</h3>
+        <h3 class="text-3xl font-bold text-gray-800">R$ {{ balance }}</h3>
     </div>
 
     <!-- Card Receitas -->
@@ -29,48 +35,129 @@
     </div>
 </div>
 
-<!-- Tabela de Transações Recentes -->
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
-    <div class="p-6 border-b">
-        <h3 class="text-lg font-bold">Transações Recentes</h3>
+<!-- Área Principal: Tabela e Gráfico -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Tabela de Transações Recentes (Ocupa 2 colunas em telas grandes) -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h3 class="text-lg font-bold text-gray-800">Transações Recentes</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50 text-gray-600 text-sm uppercase">
+                    <tr>
+                        <th class="px-6 py-4">Descrição</th>
+                        <th class="px-6 py-4">Categoria</th>
+                        <th class="px-6 py-4">Data</th>
+                        <th class="px-6 py-4">Valor</th>
+                        <th class="px-6 py-4 text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for tx in recent_transactions %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 font-medium">{{ tx.description }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold uppercase" style="color: {{ tx.category.color }};">
+                                {{ tx.category.name }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">{{ tx.date|date:"d/m/Y" }}</td>
+                        <td class="px-6 py-4 font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
+                            {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
+                        </td>
+                        <td class="px-6 py-4 text-center space-x-3">
+                            <a href="{% url 'expenses:update' tx.pk %}" class="text-blue-600 hover:text-blue-900 transition">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'expenses:delete' tx.pk %}" class="text-red-600 hover:text-red-900 transition">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">Nenhuma transação encontrada este mês.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <table class="w-full text-left">
-        <thead class="bg-gray-50 text-gray-600 text-sm uppercase">
-            <tr>
-                <th class="px-6 py-4">Descrição</th>
-                <th class="px-6 py-4">Categoria</th>
-                <th class="px-6 py-4">Data</th>
-                <th class="px-6 py-4">Valor</th>
-                <th class="px-6 py-4 text-center">Ações</th> <!-- Nova Coluna -->
-            </tr>
-        </thead>
-        <tbody class="divide-y">
-            {% for tx in recent_transactions %}
-            <tr>
-                <td class="px-6 py-4 font-medium">{{ tx.description }}</td>
-                <td class="px-6 py-4">
-                    <span class="px-2 py-1 bg-gray-100 rounded-full text-xs uppercase">{{ tx.category.name }}</span>
-                </td>
-                <td class="px-6 py-4 text-gray-500">{{ tx.date|date:"d/m/Y" }}</td>
-                <td class="px-6 py-4 font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
-                    {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
-                </td>
-                <!-- Botões de Ação -->
-                <td class="px-6 py-4 text-center space-x-2">
-                    <a href="{% url 'expenses:update' tx.pk %}" class="text-blue-600 hover:text-blue-900" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a href="{% url 'expenses:delete' tx.pk %}" class="text-red-600 hover:text-red-900" title="Excluir">
-                        <i class="fas fa-trash-alt"></i>
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="px-6 py-10 text-center text-gray-500">Nenhuma transação encontrada este mês.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <!-- Gráfico de Gastos por Categoria (Ocupa 1 coluna) -->
+    <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+        <h3 class="text-lg font-bold text-gray-800 mb-6 self-start">Gastos por Categoria</h3>
+        
+        {% if category_data %}
+            <div class="w-full relative" style="max-width: 300px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        {% else %}
+            <div class="flex flex-col items-center justify-center h-full text-gray-400 py-10">
+                <i class="fas fa-chart-pie text-5xl mb-4"></i>
+                <p>Sem despesas para analisar.</p>
+            </div>
+        {% endif %}
+    </div>
+
 </div>
+
+<!-- Scripts para o Gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('categoryChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ category_labels|safe }},
+                    datasets: [{
+                        data: {{ category_data|safe }},
+                        backgroundColor: [
+                            '#3b82f6', // blue
+                            '#ef4444', // red
+                            '#10b981', // emerald
+                            '#f59e0b', // amber
+                            '#8b5cf6', // violet
+                            '#ec4899', // pink
+                            '#06b6d4', // cyan
+                        ],
+                        hoverOffset: 10,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    return `${label}: R$ ${value.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%' // Deixa o gráfico estilo "rosca" mais fino e elegante
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
