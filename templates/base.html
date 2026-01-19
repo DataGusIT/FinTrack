@@ -14,6 +14,10 @@
             <a href="{% url 'dashboard:index' %}" class="text-2xl font-bold tracking-tight">
                 <i class="fas fa-chart-line mr-2"></i>FinTrack
             </a>
+            <div class="flex items-center space-x-6">
+                <a href="{% url 'dashboard:index' %}" class="hover:text-blue-200">Dashboard</a>
+                <a href="{% url 'expenses:category_list' %}" class="hover:text-blue-200">Categorias</a>
+            </div>
             <div class="flex items-center space-x-4">
                 <span>Olá, <strong>{{ user.username }}</strong></span>
                 <form action="{% url 'logout' %}" method="post" class="inline">

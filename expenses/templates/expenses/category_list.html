@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Minhas Categorias</h2>
+    <a href="{% url 'expenses:category_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
+        <i class="fas fa-plus mr-2"></i>Nova Categoria
+    </a>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {% for cat in categories %}
+    <div class="bg-white p-4 rounded-xl shadow-sm border-t-4 flex justify-between items-center" style="border-color: {{ cat.color }};">
+        <div>
+            <h4 class="font-bold text-lg">{{ cat.name }}</h4>
+            <span class="text-xs uppercase text-gray-500">{{ cat.get_type_display }}</span>
+        </div>
+        <div class="space-x-2">
+            <a href="{% url 'expenses:category_update' cat.pk %}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></a>
+            <a href="{% url 'expenses:category_delete' cat.pk %}" class="text-red-600 hover:text-red-900"><i class="fas fa-trash-alt"></i></a>
+        </div>
+    </div>
+    {% empty %}
+    <p class="col-span-3 text-center text-gray-500 py-10">Você ainda não criou categorias.</p>
+    {% endfor %}
+</div>
+{% endblock %}

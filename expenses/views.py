@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Transaction
-from .forms import TransactionForm
+from .models import Transaction, Category
+from .forms import TransactionForm, CategoryForm
 
 @login_required
 def transaction_create(request):
@@ -43,3 +43,43 @@ def transaction_delete(request, pk):
         return redirect('dashboard:index')
     
     return render(request, 'expenses/transaction_confirm_delete.html', {'transaction': transaction})
+
+# --- VIEWS DE CATEGORIA ---
+
+@login_required
+def category_list(request):
+    categories = Category.objects.filter(user=request.user)
+    return render(request, 'expenses/category_list.html', {'categories': categories})
+
+@login_required
+def category_create(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.user = request.user
+            category.save()
+            return redirect('expenses:category_list')
+    else:
+        form = CategoryForm()
+    return render(request, 'expenses/category_form.html', {'form': form})
+
+@login_required
+def category_update(request, pk):
+    category = get_object_or_404(Category, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('expenses:category_list')
+    else:
+        form = CategoryForm(instance=category)
+    return render(request, 'expenses/category_form.html', {'form': form, 'is_edit': True})
+
+@login_required
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk, user=request.user)
+    if request.method == 'POST':
+        category.delete()
+        return redirect('expenses:category_list')
+    return render(request, 'expenses/category_confirm_delete.html', {'category': category})
