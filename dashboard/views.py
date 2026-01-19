@@ -2,13 +2,17 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from expenses.models import Transaction, Category, Budget
 from django.db.models import Sum
-from datetime import datetime
+from datetime import datetime, date
+import calendar
 
 @login_required
 def index(request):
     # Obtém o mês e ano atual
     today = datetime.now()
-    
+
+    last_day = calendar.monthrange(today.year, today.month)[1] 
+    days_passed = today.day
+
     # Filtra transações do usuário no mês atual
     transactions = Transaction.objects.filter(
         user=request.user, 
@@ -20,6 +24,26 @@ def index(request):
     total_income = transactions.filter(type='INCOME').aggregate(Sum('amount'))['amount__sum'] or 0
     total_expense = transactions.filter(type='EXPENSE').aggregate(Sum('amount'))['amount__sum'] or 0
     balance = total_income - total_expense
+
+    # --- NOVOS INDICADORES (KPIs) ---
+
+    # 1. Taxa de Poupança
+    savings_rate = 0
+    if total_income > 0:
+        savings_rate = ((total_income - total_expense) / total_income) * 100
+
+    # 2. Média Diária de Gastos
+    daily_avg = float(total_expense) / days_passed if days_passed > 0 else 0
+
+    # 3. Projeção de Gastos até o fim do mês
+    projection = daily_avg * last_day
+
+    # 4. Top 5 Maiores Gastos (Categorias)
+    top_categories = transactions.filter(type='EXPENSE').values(
+        'category__name', 'category__color'
+    ).annotate(
+        total=Sum('amount')
+    ).order_by('-total')[:5]
 
     # --- DADOS PARA OS GRÁFICOS ---
     
@@ -78,6 +102,11 @@ def index(request):
         'category_data': category_data,
         'budget_data': budget_data,
         'pending_expenses': pending_expenses,
+        'savings_rate': round(savings_rate, 1),
+        'daily_avg': round(daily_avg, 2),
+        'projection': round(projection, 2),
+        'top_categories': top_categories,
+        'days_left': last_day - days_passed,
     }
     
     return render(request, 'dashboard/index.html', context)
