@@ -8,6 +8,7 @@ urlpatterns = [
     path('novo/', views.transaction_create, name='create'),
     path('editar/<int:pk>/', views.transaction_update, name='update'),
     path('deletar/<int:pk>/', views.transaction_delete, name='delete'),
+    path('extrato/', views.transaction_list, name='transaction_list'),
     
     # Categorias 
     path('categorias/', views.category_list, name='category_list'),

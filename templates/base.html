@@ -19,6 +19,7 @@
                     <a href="{% url 'dashboard:index' %}" class="hover:text-blue-200">Dashboard</a>
                     <a href="{% url 'expenses:category_list' %}" class="hover:text-blue-200">Categorias</a>
                     <a href="{% url 'expenses:budget_list' %}" class="hover:text-blue-200">Orçamentos</a>
+                    <a href="{% url 'expenses:transaction_list' %}" class="hover:text-blue-200">Extrato</a>
                     <span class="text-sm border-l pl-4 border-blue-400">Olá, <strong>{{ user.username }}</strong></span>
                     <form action="{% url 'logout' %}" method="post" class="inline">
                         {% csrf_token %}
