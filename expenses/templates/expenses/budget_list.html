@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Metas de Gastos (Orçamentos)</h2>
+    <a href="{% url 'expenses:budget_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
+        <i class="fas fa-bullseye mr-2"></i>Definir Nova Meta
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-left">
+        <thead class="bg-gray-50 text-gray-600 text-sm uppercase">
+            <tr>
+                <th class="px-6 py-4">Categoria</th>
+                <th class="px-6 py-4">Mês/Ano</th>
+                <th class="px-6 py-4">Limite</th>
+                <th class="px-6 py-4 text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for b in budgets %}
+            <tr>
+                <td class="px-6 py-4 font-bold" style="color: {{ b.category.color }};">{{ b.category.name }}</td>
+                <td class="px-6 py-4 text-gray-600">{{ b.month }}/{{ b.year }}</td>
+                <td class="px-6 py-4 font-bold text-gray-800">R$ {{ b.amount }}</td>
+                <td class="px-6 py-4 text-center space-x-3">
+                    <a href="{% url 'expenses:budget_update' b.pk %}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'expenses:budget_delete' b.pk %}" class="text-red-600 hover:text-red-900"><i class="fas fa-trash-alt"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-6 py-10 text-center text-gray-500">Nenhuma meta definida ainda.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

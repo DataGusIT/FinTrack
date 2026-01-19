@@ -44,14 +44,18 @@ def index(request):
             date__year=today.year
         ).aggregate(Sum('amount'))['amount__sum'] or 0
         
-        # Calcula porcentagem
-        percent = (spent / budget.amount) * 100 if budget.amount > 0 else 0
-        
+        # Convertendo para float para evitar problemas de serialização e garantir precisão
+        spent_float = float(spent)
+        limit_float = float(budget.amount)
+
+        percent = (spent_float / limit_float) * 100 if limit_float > 0 else 0
+
         budget_data.append({
             'category': budget.category.name,
-            'limit': budget.amount,
-            'spent': spent,
-            'percent': min(percent, 100), # Capar em 100 para a barra não quebrar
+            'limit': limit_float,
+            'spent': spent_float,
+            'percent': percent, # Passamos o valor real (ex: 10.0)
+            'display_percent': min(percent, 100), # Para a largura da barra
             'is_over': percent > 100,
             'color': budget.category.color
         })
