@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Transaction, Category, Budget
 from .forms import TransactionForm, CategoryForm, BudgetForm
+from django.db.models import Q
 
 @login_required
 def transaction_create(request):
@@ -43,6 +44,48 @@ def transaction_delete(request, pk):
         return redirect('dashboard:index')
     
     return render(request, 'expenses/transaction_confirm_delete.html', {'transaction': transaction})
+
+@login_required
+def transaction_list(request):
+    # Base: todas as transações do usuário
+    transactions = Transaction.objects.filter(user=request.user)
+
+    # Capturando filtros do GET
+    search_query = request.GET.get('search')
+    category_id = request.GET.get('category')
+    transaction_type = request.GET.get('type')
+    status = request.GET.get('status')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Aplicando os filtros se eles existirem
+    if search_query:
+        transactions = transactions.filter(description__icontains=search_query)
+    
+    if category_id:
+        transactions = transactions.filter(category_id=category_id)
+        
+    if transaction_type:
+        transactions = transactions.filter(type=transaction_type)
+        
+    if status:
+        transactions = transactions.filter(status=status)
+        
+    if start_date:
+        transactions = transactions.filter(date__gte=start_date)
+        
+    if end_date:
+        transactions = transactions.filter(date__lte=end_date)
+
+    # Dados para popular os selects do filtro
+    categories = Category.objects.filter(user=request.user)
+    
+    context = {
+        'transactions': transactions,
+        'categories': categories,
+        'filter_data': request.GET, # Para manter os campos preenchidos após filtrar
+    }
+    return render(request, 'expenses/transaction_list.html', context)
 
 # --- VIEWS DE CATEGORIA ---
 
