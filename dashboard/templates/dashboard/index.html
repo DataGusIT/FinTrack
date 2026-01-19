@@ -35,6 +35,33 @@
     </div>
 </div>
 
+<!-- Seção de Orçamentos -->
+<div class="mb-8">
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Orçamentos do Mês</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {% for item in budget_data %}
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-gray-700">{{ item.category }}</span>
+                <span class="text-xs {% if item.is_over %}text-red-600 font-bold{% else %}text-gray-500{% endif %}">
+                    R$ {{ item.spent }} / {{ item.limit }}
+                </span>
+            </div>
+            <!-- Barra de Progresso -->
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="h-2 rounded-full {% if item.is_over %}bg-red-500{% else %}bg-green-500{% endif %}" 
+                     style="width: {{ item.percent }}%"></div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full bg-blue-50 p-4 rounded-lg text-blue-700 text-sm">
+            <i class="fas fa-info-circle mr-2"></i> Você ainda não definiu orçamentos para este mês. 
+            <a href="/admin/expenses/budget/add/" class="font-bold underline">Definir agora</a> (Em breve pela interface!)
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 <!-- Área Principal: Tabela e Gráfico -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
