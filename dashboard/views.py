@@ -60,6 +60,15 @@ def index(request):
             'color': budget.category.color
         })
 
+    # Novo Insight: Contas Pendentes
+    pending_expenses = Transaction.objects.filter(
+        user=request.user,
+        type='EXPENSE',
+        status='PENDING',
+        date__month=today.month,
+        date__year=today.year
+    ).aggregate(Sum('amount'))['amount__sum'] or 0
+
     context = {
         'total_income': total_income,
         'total_expense': total_expense,
@@ -68,6 +77,7 @@ def index(request):
         'category_labels': category_labels,
         'category_data': category_data,
         'budget_data': budget_data,
+        'pending_expenses': pending_expenses,
     }
     
     return render(request, 'dashboard/index.html', context)

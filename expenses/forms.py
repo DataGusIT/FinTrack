@@ -1,21 +1,21 @@
 from django import forms
-from .models import Transaction, Category, Budget
+from .models import Transaction, Category, Budget, PaymentMethod
 
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['description', 'amount', 'date', 'type', 'category', 'is_paid']
+        fields = ['description', 'amount', 'date', 'type', 'category', 'payment_method', 'status']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'w-full p-2 border rounded'}),
             'description': forms.TextInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Ex: Supermercado'}),
             'amount': forms.NumberInput(attrs={'class': 'w-full p-2 border rounded', 'step': '0.01'}),
             'type': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
             'category': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
-            'is_paid': forms.CheckboxInput(attrs={'class': 'mr-2'}),
+            'payment_method': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+            'status': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
         }
 
     def __init__(self, *args, **kwargs):
-        # Recebe o usuário logado para filtrar as categorias
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user:
@@ -49,3 +49,12 @@ class BudgetForm(forms.ModelForm):
         if user:
             # Mostra apenas categorias do tipo DESPESA para orçamento
             self.fields['category'].queryset = Category.objects.filter(user=user, type='EXPENSE')
+
+class PaymentMethodForm(forms.ModelForm):
+    class Meta:
+        model = PaymentMethod
+        fields = ['name', 'type']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'w-full p-2 border rounded', 'placeholder': 'Ex: Banco Inter'}),
+            'type': forms.Select(attrs={'class': 'w-full p-2 border rounded'}),
+        }

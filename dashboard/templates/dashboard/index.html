@@ -16,98 +16,118 @@
 
 <!-- Cards de Resumo -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Card Saldo Geral -->
     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
         <p class="text-sm text-gray-500 uppercase font-bold">Saldo do Mês</p>
         <h3 class="text-3xl font-bold text-gray-800">R$ {{ balance }}</h3>
     </div>
-
-    <!-- Card Receitas -->
     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
         <p class="text-sm text-gray-500 uppercase font-bold text-green-600">Receitas</p>
         <h3 class="text-3xl font-bold text-green-600">+ R$ {{ total_income }}</h3>
     </div>
-
-    <!-- Card Despesas -->
     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
         <p class="text-sm text-gray-500 uppercase font-bold text-red-600">Despesas</p>
         <h3 class="text-3xl font-bold text-red-600">- R$ {{ total_expense }}</h3>
     </div>
 </div>
 
+<!-- Alerta de Contas Pendentes -->
+{% if pending_expenses > 0 %}
+<div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 flex justify-between items-center rounded-r-lg">
+    <div class="flex items-center">
+        <i class="fas fa-clock text-yellow-500 mr-3 text-xl"></i>
+        <p class="text-sm text-yellow-700">
+            Atenção: Você possui <span class="font-bold">R$ {{ pending_expenses }}</span> em contas pendentes para este mês.
+        </p>
+    </div>
+    <span class="text-xs font-bold text-yellow-600 uppercase">Aguardando Pagamento</span>
+</div>
+{% endif %}
+
 <!-- Seção de Orçamentos -->
 <div class="mb-8">
-    <h3 class="text-lg font-bold text-gray-800 mb-4">Orçamentos do Mês</h3>
+    <h3 class="text-lg font-bold text-gray-800 mb-4">Metas de Gastos</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {% for item in budget_data %}
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
             <div class="flex justify-between items-center mb-2">
-                <span class="font-bold text-gray-700">{{ item.category }}</span>
-                <span class="text-xs {% if item.is_over %}text-red-600 font-bold{% else %}text-gray-500{% endif %}">
-                    R$ {{ item.spent }} / {{ item.limit }}
+                <span class="font-bold text-gray-700 text-sm">{{ item.category }}</span>
+                <span class="text-[10px] {% if item.is_over %}text-red-600 font-bold{% else %}text-gray-400{% endif %}">
+                    R$ {{ item.spent|floatformat:2 }} / {{ item.limit|floatformat:0 }}
                 </span>
             </div>
-            <!-- Barra de Progresso -->
-            <div class="w-full bg-gray-200 rounded-full h-2">
-                <!-- Usamos |floatformat:"0" para pegar o número inteiro ou |safe para garantir o ponto -->
-                <div class="h-2 rounded-full {% if item.is_over %}bg-red-500{% else %}bg-green-500{% endif %}" 
+            <div class="w-full bg-gray-100 rounded-full h-1.5">
+                <div class="h-1.5 rounded-full {% if item.is_over %}bg-red-500{% else %}bg-green-500{% endif %}" 
                     style="width: {{ item.display_percent|stringformat:'f'|safe }}%">
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="col-span-full bg-blue-50 p-4 rounded-lg text-blue-700 text-sm">
-            <i class="fas fa-info-circle mr-2"></i> Você ainda não definiu orçamentos para este mês. 
-            <a href="/admin/expenses/budget/add/" class="font-bold underline">Definir agora</a> (Em breve pela interface!)
+            <i class="fas fa-info-circle mr-2"></i> Nenhuma meta definida. <a href="{% url 'expenses:budget_create' %}" class="underline font-bold">Definir Meta</a>
         </div>
         {% endfor %}
     </div>
 </div>
 
-<!-- Área Principal: Tabela e Gráfico -->
+<!-- Área Principal: Extrato e Gráfico -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
-    <!-- Tabela de Transações Recentes (Ocupa 2 colunas em telas grandes) -->
     <div class="lg:col-span-2 bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="p-6 border-b flex justify-between items-center">
-            <h3 class="text-lg font-bold text-gray-800">Transações Recentes</h3>
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-bold text-gray-800">Extrato Recente</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-gray-50 text-gray-600 text-sm uppercase">
+                <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase tracking-wider">
                     <tr>
-                        <th class="px-6 py-4">Descrição</th>
-                        <th class="px-6 py-4">Categoria</th>
-                        <th class="px-6 py-4">Data</th>
-                        <th class="px-6 py-4">Valor</th>
-                        <th class="px-6 py-4 text-center">Ações</th>
+                        <th class="px-6 py-4 font-bold">Descrição / Método</th>
+                        <th class="px-6 py-4 font-bold text-center">Status</th>
+                        <th class="px-6 py-4 font-bold">Data</th>
+                        <th class="px-6 py-4 font-bold text-right">Valor</th>
+                        <th class="px-6 py-4 font-bold text-center">Ações</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y">
+                <tbody class="divide-y text-sm">
                     {% for tx in recent_transactions %}
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="px-6 py-4 font-medium">{{ tx.description }}</td>
+                    <tr class="hover:bg-gray-50 transition {% if tx.status == 'CANCELLED' %}opacity-50{% endif %}">
                         <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-gray-100 rounded-full text-xs font-bold uppercase" style="color: {{ tx.category.color }};">
-                                {{ tx.category.name }}
-                            </span>
+                            <div class="font-bold {% if tx.status == 'CANCELLED' %}line-through{% endif %}">{{ tx.description }}</div>
+                            <div class="text-[10px] text-gray-400 flex items-center mt-1">
+                                {% if tx.payment_method == 'CREDIT' or tx.payment_method == 'DEBIT' %}
+                                    <i class="fas fa-credit-card mr-1"></i>
+                                {% elif tx.payment_method == 'PIX' %}
+                                    <i class="fas fa-bolt mr-1"></i>
+                                {% elif tx.payment_method == 'CASH' %}
+                                    <i class="fas fa-money-bill-wave mr-1"></i>
+                                {% else %}
+                                    <i class="fas fa-wallet mr-1"></i>
+                                {% endif %}
+                                {{ tx.get_payment_method_display }}
+                                <span class="mx-1">•</span>
+                                <span style="color: {{ tx.category.color }}">{{ tx.category.name }}</span>
+                            </div>
                         </td>
-                        <td class="px-6 py-4 text-gray-500">{{ tx.date|date:"d/m/Y" }}</td>
-                        <td class="px-6 py-4 font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
+                        <td class="px-6 py-4 text-center">
+                            {% if tx.status == 'PAID' %}
+                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-[10px] font-bold">PAGO</span>
+                            {% elif tx.status == 'PENDING' %}
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-[10px] font-bold">PENDENTE</span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-500 rounded text-[10px] font-bold">CANCELADO</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-500 text-xs">{{ tx.date|date:"d M" }}</td>
+                        <td class="px-6 py-4 text-right font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
                             {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
                         </td>
-                        <td class="px-6 py-4 text-center space-x-3">
-                            <a href="{% url 'expenses:update' tx.pk %}" class="text-blue-600 hover:text-blue-900 transition">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="{% url 'expenses:delete' tx.pk %}" class="text-red-600 hover:text-red-900 transition">
-                                <i class="fas fa-trash-alt"></i>
-                            </a>
+                        <td class="px-6 py-4 text-center space-x-2">
+                            <a href="{% url 'expenses:update' tx.pk %}" class="text-blue-400 hover:text-blue-600"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'expenses:delete' tx.pk %}" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">Nenhuma transação encontrada este mês.</td>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-400">Nenhum registro este mês.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -115,25 +135,20 @@
         </div>
     </div>
 
-    <!-- Gráfico de Gastos por Categoria (Ocupa 1 coluna) -->
+    <!-- Gráfico Lateral -->
     <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
-        <h3 class="text-lg font-bold text-gray-800 mb-6 self-start">Gastos por Categoria</h3>
-        
+        <h3 class="text-lg font-bold text-gray-800 mb-6 self-start">Distribuição</h3>
         {% if category_data %}
-            <div class="w-full relative" style="max-width: 300px;">
-                <canvas id="categoryChart"></canvas>
-            </div>
+            <div class="w-full relative"><canvas id="categoryChart"></canvas></div>
         {% else %}
-            <div class="flex flex-col items-center justify-center h-full text-gray-400 py-10">
+            <div class="flex flex-col items-center justify-center h-full text-gray-300 py-10">
                 <i class="fas fa-chart-pie text-5xl mb-4"></i>
-                <p>Sem despesas para analisar.</p>
+                <p class="text-xs">Sem dados de gastos.</p>
             </div>
         {% endif %}
     </div>
-
 </div>
 
-<!-- Scripts para o Gráfico -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -145,45 +160,17 @@
                     labels: {{ category_labels|safe }},
                     datasets: [{
                         data: {{ category_data|safe }},
-                        backgroundColor: [
-                            '#3b82f6', // blue
-                            '#ef4444', // red
-                            '#10b981', // emerald
-                            '#f59e0b', // amber
-                            '#8b5cf6', // violet
-                            '#ec4899', // pink
-                            '#06b6d4', // cyan
-                        ],
-                        hoverOffset: 10,
+                        backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'],
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    let value = context.raw || 0;
-                                    return `${label}: R$ ${value.toFixed(2)}`;
-                                }
-                            }
-                        }
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
                     },
-                    cutout: '70%' // Deixa o gráfico estilo "rosca" mais fino e elegante
+                    cutout: '75%'
                 }
             });
         }
