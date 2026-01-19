@@ -122,6 +122,8 @@ def index(request):
         evolution_labels.append(month_name)
         evolution_income.append(float(income_sum))
         evolution_expense.append(float(expense_sum))
+    
+    income_consumed_percent = (float(total_expense) / float(total_income)) * 100 if total_income > 0 else 0
 
     context = {
         'total_income': total_income,
@@ -141,6 +143,8 @@ def index(request):
         'evolution_labels': evolution_labels,
         'evolution_income': evolution_income,
         'evolution_expense': evolution_expense,
+        'income_consumed_percent': income_consumed_percent,
+        'display_income_consumed': min(income_consumed_percent, 100),
     }
     
     return render(request, 'dashboard/index.html', context)
