@@ -49,8 +49,10 @@
             </div>
             <!-- Barra de Progresso -->
             <div class="w-full bg-gray-200 rounded-full h-2">
+                <!-- Usamos |floatformat:"0" para pegar o número inteiro ou |safe para garantir o ponto -->
                 <div class="h-2 rounded-full {% if item.is_over %}bg-red-500{% else %}bg-green-500{% endif %}" 
-                     style="width: {{ item.percent }}%"></div>
+                    style="width: {{ item.display_percent|stringformat:'f'|safe }}%">
+                </div>
             </div>
         </div>
         {% empty %}

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Transaction, Category
-from .forms import TransactionForm, CategoryForm
+from .models import Transaction, Category, Budget
+from .forms import TransactionForm, CategoryForm, BudgetForm
 
 @login_required
 def transaction_create(request):
@@ -83,3 +83,43 @@ def category_delete(request, pk):
         category.delete()
         return redirect('expenses:category_list')
     return render(request, 'expenses/category_confirm_delete.html', {'category': category})
+
+@login_required
+def budget_list(request):
+    budgets = Budget.objects.filter(user=request.user).order_by('-year', '-month')
+    return render(request, 'expenses/budget_list.html', {'budgets': budgets})
+
+@login_required
+def budget_create(request):
+    if request.method == 'POST':
+        form = BudgetForm(request.POST, user=request.user)
+        if form.is_valid():
+            budget = form.save(commit=False)
+            budget.user = request.user
+            budget.save()
+            return redirect('expenses:budget_list')
+    else:
+        from datetime import datetime
+        # Pré-preenche com mês e ano atual
+        form = BudgetForm(user=request.user, initial={'month': datetime.now().month, 'year': datetime.now().year})
+    return render(request, 'expenses/budget_form.html', {'form': form})
+
+@login_required
+def budget_update(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = BudgetForm(request.POST, instance=budget, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('expenses:budget_list')
+    else:
+        form = BudgetForm(instance=budget, user=request.user)
+    return render(request, 'expenses/budget_form.html', {'form': form, 'is_edit': True})
+
+@login_required
+def budget_delete(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    if request.method == 'POST':
+        budget.delete()
+        return redirect('expenses:budget_list')
+    return render(request, 'expenses/budget_confirm_delete.html', {'budget': budget})
