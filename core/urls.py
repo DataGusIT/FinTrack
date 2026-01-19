@@ -5,5 +5,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')), # URLs padrão de login/logout
     path('', include('dashboard.urls')),
-    # path('expenses/', include('expenses.urls')), # Criar depois
+    path('transacoes/', include('expenses.urls')),
 ]
