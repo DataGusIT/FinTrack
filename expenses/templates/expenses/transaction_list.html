@@ -66,9 +66,18 @@
     <div class="flex-1 bg-white rounded-xl shadow-sm overflow-hidden">
         <div class="p-6 border-b flex justify-between items-center bg-white">
             <h3 class="text-lg font-bold text-gray-800">Histórico de Movimentações</h3>
-            <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold">
-                {{ transactions.count }} registros
-            </span>
+            
+            <div class="flex items-center space-x-4">
+                <!-- BOTÃO DE EXPORTAÇÃO -->
+                <a href="{% url 'expenses:export_csv' %}?{{ request.GET.urlencode }}" 
+                class="text-xs font-bold text-green-600 hover:text-green-700 flex items-center bg-green-50 px-3 py-2 rounded-lg transition">
+                    <i class="fas fa-file-excel mr-2"></i> Exportar CSV
+                </a>
+                
+                <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold">
+                    {{ transactions.count }} registros
+                </span>
+            </div>
         </div>
         
         <div class="overflow-x-auto">
