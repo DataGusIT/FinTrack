@@ -69,6 +69,55 @@
     </div>
 </div>
 
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    
+    <!-- Card Taxa de Poupança -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-gray-400 uppercase">Taxa de Poupança</span>
+            <i class="fas fa-piggy-bank text-blue-400"></i>
+        </div>
+        <div class="flex items-baseline">
+            <h4 class="text-xl font-bold {% if savings_rate > 20 %}text-green-600{% elif savings_rate > 0 %}text-blue-600{% else %}text-red-600{% endif %}">
+                {{ savings_rate }}%
+            </h4>
+        </div>
+        <p class="text-[10px] text-gray-400 mt-1">da sua receita foi poupada</p>
+    </div>
+
+    <!-- Card Média Diária -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-gray-400 uppercase">Média Diária</span>
+            <i class="fas fa-calendar-day text-purple-400"></i>
+        </div>
+        <h4 class="text-xl font-bold text-gray-800">R$ {{ daily_avg }}</h4>
+        <p class="text-[10px] text-gray-400 mt-1">gastos médios por dia</p>
+    </div>
+
+    <!-- Card Projeção -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-gray-400 uppercase">Projeção Fim do Mês</span>
+            <i class="fas fa-chart-line text-orange-400"></i>
+        </div>
+        <h4 class="text-xl font-bold {% if projection > total_income %}text-red-600{% else %}text-gray-800{% endif %}">
+            R$ {{ projection }}
+        </h4>
+        <p class="text-[10px] text-gray-400 mt-1">estimativa baseada no ritmo atual</p>
+    </div>
+
+    <!-- Card Dias Restantes -->
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-gray-400 uppercase">Tempo Restante</span>
+            <i class="fas fa-hourglass-half text-gray-400"></i>
+        </div>
+        <h4 class="text-xl font-bold text-gray-800">{{ days_left }} Dias</h4>
+        <p class="text-[10px] text-gray-400 mt-1">para encerrar o mês atual</p>
+    </div>
+</div>
+
 <!-- Área Principal: Extrato e Gráfico -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
