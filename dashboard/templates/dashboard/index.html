@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Card Saldo Geral -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+        <p class="text-sm text-gray-500 uppercase font-bold">Saldo do Mês</p>
+        <h3 class="text-3xl font-bold">R$ {{ balance }}</h3>
+    </div>
+
+    <!-- Card Receitas -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+        <p class="text-sm text-gray-500 uppercase font-bold text-green-600">Receitas</p>
+        <h3 class="text-3xl font-bold text-green-600">+ R$ {{ total_income }}</h3>
+    </div>
+
+    <!-- Card Despesas -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
+        <p class="text-sm text-gray-500 uppercase font-bold text-red-600">Despesas</p>
+        <h3 class="text-3xl font-bold text-red-600">- R$ {{ total_expense }}</h3>
+    </div>
+</div>
+
+<!-- Tabela de Transações Recentes -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-6 border-b">
+        <h3 class="text-lg font-bold">Transações Recentes</h3>
+    </div>
+    <table class="w-full text-left">
+        <thead class="bg-gray-50 text-gray-600 text-sm uppercase">
+            <tr>
+                <th class="px-6 py-4">Descrição</th>
+                <th class="px-6 py-4">Categoria</th>
+                <th class="px-6 py-4">Data</th>
+                <th class="px-6 py-4">Valor</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for tx in recent_transactions %}
+            <tr>
+                <td class="px-6 py-4 font-medium">{{ tx.description }}</td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 bg-gray-100 rounded-full text-xs uppercase">{{ tx.category.name }}</span>
+                </td>
+                <td class="px-6 py-4 text-gray-500">{{ tx.date|date:"d/m/Y" }}</td>
+                <td class="px-6 py-4 font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
+                    {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-6 py-10 text-center text-gray-500">Nenhuma transação encontrada este mês.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
