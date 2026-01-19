@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-8 rounded-xl shadow-md">
+    <h2 class="text-2xl font-bold mb-6">{% if is_edit %}Editar{% else %}Nova{% endif %} Categoria</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="space-y-4">
+            {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-8 flex space-x-4">
+            <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700">Salvar</button>
+            <a href="{% url 'expenses:category_list' %}" class="flex-1 bg-gray-200 text-center px-4 py-2 rounded-lg font-bold">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
