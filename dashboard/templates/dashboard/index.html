@@ -14,19 +14,70 @@
     </div>
 </div>
 
-<!-- Cards de Resumo -->
+<!-- Cards de Resumo Principais -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-        <p class="text-sm text-gray-500 uppercase font-bold">Saldo do Mês</p>
-        <h3 class="text-3xl font-bold text-gray-800">R$ {{ balance }}</h3>
+    
+    <!-- Card Saldo Geral -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Saldo Disponível</span>
+            <div class="h-10 w-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500">
+                <i class="fas fa-wallet text-lg"></i>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-gray-800 tracking-tight">
+                {{ symbol }} {{ balance }}
+            </h3>
+            <div class="flex items-center mt-2">
+                <span class="text-[10px] font-medium {% if balance > 0 %}text-green-500{% else %}text-red-500{% endif %} bg-opacity-10 px-2 py-0.5 rounded">
+                    <i class="fas {% if balance > 0 %}fa-circle-check{% else %}fa-circle-exclamation{% endif %} mr-1"></i>
+                    Status Financeiro
+                </span>
+            </div>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-        <p class="text-sm text-gray-500 uppercase font-bold text-green-600">Receitas</p>
-        <h3 class="text-3xl font-bold text-green-600">+ R$ {{ total_income }}</h3>
+
+    <!-- Card Receitas -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Recebido</span>
+            <div class="h-10 w-10 bg-green-50 rounded-lg flex items-center justify-center text-green-500">
+                <i class="fas fa-arrow-trend-up text-lg"></i>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-green-600 tracking-tight">
+                + {{ symbol }} {{ total_income }}
+            </h3>
+            <p class="text-[10px] text-gray-400 mt-2">Entradas confirmadas no mês</p>
+        </div>
     </div>
-    <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-red-500">
-        <p class="text-sm text-gray-500 uppercase font-bold text-red-600">Despesas</p>
-        <h3 class="text-3xl font-bold text-red-600">- R$ {{ total_expense }}</h3>
+
+    <!-- Card Despesas -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Gasto</span>
+            <div class="h-10 w-10 bg-red-50 rounded-lg flex items-center justify-center text-red-500">
+                <i class="fas fa-arrow-trend-down text-lg"></i>
+            </div>
+        </div>
+        <div class="flex flex-col">
+            <h3 class="text-3xl font-bold text-red-600 tracking-tight">
+                - {{ symbol }} {{ total_expense }}
+            </h3>
+            <div class="flex items-center mt-2">
+                <!-- Barra de Progresso Corrigida -->
+                <div class="w-full bg-gray-100 rounded-full h-1 mr-2">
+                    <div class="bg-red-400 h-1 rounded-full" 
+                        style="width: {{ display_income_consumed|stringformat:'f'|safe }}%">
+                    </div>
+                </div>
+                <span class="text-[10px] text-gray-400 font-bold whitespace-nowrap">
+                    {{ income_consumed_percent|floatformat:0 }}% da renda
+                </span>
+            </div>
+        </div>
     </div>
 </div>
 
