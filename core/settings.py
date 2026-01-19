@@ -124,5 +124,5 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
 LOGIN_REDIRECT_URL = 'dashboard:index'
-LOGOUT_REDIRECT_URL = 'login'
-LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'accounts:login'  # Adicionado accounts:
+LOGIN_URL = 'accounts:login'           # Adicionado accounts:
