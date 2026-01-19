@@ -4,6 +4,8 @@ from expenses.models import Transaction, Category, Budget
 from django.db.models import Sum
 from datetime import datetime, date
 import calendar
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 @login_required
 def index(request):
@@ -97,6 +99,30 @@ def index(request):
     currency_symbols = {'BRL': 'R$', 'USD': '$', 'EUR': '€'}
     symbol = currency_symbols.get(request.user.preferred_currency, 'R$')
 
+     # --- LÓGICA DO GRÁFICO DE EVOLUÇÃO (6 MESES) ---
+    evolution_labels = []
+    evolution_income = []
+    evolution_expense = []
+
+    for i in range(5, -1, -1):
+        # Calcula o mês alvo (de 5 meses atrás até o atual)
+        target_date = today - relativedelta(months=i)
+        month_name = target_date.strftime('%b') # Ex: Jan, Fev...
+        
+        # Filtra transações daquele mês específico
+        month_tx = Transaction.objects.filter(
+            user=request.user,
+            date__month=target_date.month,
+            date__year=target_date.year
+        )
+        
+        income_sum = month_tx.filter(type='INCOME').aggregate(Sum('amount'))['amount__sum'] or 0
+        expense_sum = month_tx.filter(type='EXPENSE').aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        evolution_labels.append(month_name)
+        evolution_income.append(float(income_sum))
+        evolution_expense.append(float(expense_sum))
+
     context = {
         'total_income': total_income,
         'total_expense': total_expense,
@@ -112,6 +138,9 @@ def index(request):
         'top_categories': top_categories,
         'days_left': last_day - days_passed,
         'symbol': symbol,
+        'evolution_labels': evolution_labels,
+        'evolution_income': evolution_income,
+        'evolution_expense': evolution_expense,
     }
     
     return render(request, 'dashboard/index.html', context)
