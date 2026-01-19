@@ -21,14 +21,23 @@
                     <a href="{% url 'expenses:budget_list' %}" class="hover:text-blue-200">Orçamentos</a>
                     <a href="{% url 'expenses:transaction_list' %}" class="hover:text-blue-200">Extrato</a>
                     <a href="{% url 'expenses:recurring_list' %}" class="hover:text-blue-200">Recorrentes</a>
-                    <span class="text-sm border-l pl-4 border-blue-400">Olá, <strong>{{ user.username }}</strong></span>
-                    <form action="{% url 'logout' %}" method="post" class="inline">
+                    <div class="flex items-center space-x-3">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" class="w-8 h-8 rounded-full object-cover border-2 border-white">
+                        {% else %}
+                            <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white">
+                                <i class="fas fa-user text-xs"></i>
+                            </div>
+                        {% endif %}
+                        <a href="{% url 'accounts:settings' %}" class="hover:underline font-bold">Olá, {{ user.username }}</a>
+                    </div>
+                    <form action="{% url 'accounts:logout' %}" method="post" class="inline">
                         {% csrf_token %}
                         <button type="submit" class="bg-blue-700 hover:bg-red-500 px-3 py-1 rounded text-sm transition">Sair</button>
                     </form>
                 {% else %}
-                    <a href="{% url 'login' %}" class="hover:text-blue-200">Login</a>
-                    <a href="{% url 'register' %}" class="bg-white text-blue-600 px-4 py-1 rounded font-bold hover:bg-blue-50">Começar Agora</a>
+                    <a href="{% url 'accounts:login' %}" class="hover:text-blue-200">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="bg-white text-blue-600 px-4 py-1 rounded font-bold hover:bg-blue-50">Começar Agora</a>
                 {% endif %}
             </div>
         </div>

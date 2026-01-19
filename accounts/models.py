@@ -18,5 +18,12 @@ class User(AbstractUser):
         default='BRL'
     )
 
+    profile_picture = models.ImageField(
+        'Foto de Perfil', 
+        upload_to='profiles/', 
+        null=True, 
+        blank=True
+    )
+    
     def __str__(self):
         return self.username

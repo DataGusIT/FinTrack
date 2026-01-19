@@ -93,6 +93,10 @@ def index(request):
         date__year=today.year
     ).aggregate(Sum('amount'))['amount__sum'] or 0
 
+    # Mapeamento de símbolos
+    currency_symbols = {'BRL': 'R$', 'USD': '$', 'EUR': '€'}
+    symbol = currency_symbols.get(request.user.preferred_currency, 'R$')
+
     context = {
         'total_income': total_income,
         'total_expense': total_expense,
@@ -107,6 +111,7 @@ def index(request):
         'projection': round(projection, 2),
         'top_categories': top_categories,
         'days_left': last_day - days_passed,
+        'symbol': symbol,
     }
     
     return render(request, 'dashboard/index.html', context)
