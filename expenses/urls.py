@@ -21,4 +21,8 @@ urlpatterns = [
     path('orcamentos/novo/', views.budget_create, name='budget_create'),
     path('orcamentos/editar/<int:pk>/', views.budget_update, name='budget_update'),
     path('orcamentos/deletar/<int:pk>/', views.budget_delete, name='budget_delete'),
+
+    # Recorrencias 
+    path('recorrentes/', views.recurring_list, name='recurring_list'),
+    path('recorrentes/novo/', views.recurring_create, name='recurring_create'),
 ]

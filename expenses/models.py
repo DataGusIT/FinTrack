@@ -106,3 +106,30 @@ class Budget(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.month}/{self.year}"
+    
+class RecurringTransaction(models.Model):
+    FREQUENCY_CHOICES = (
+        ('WEEKLY', 'Semanal'),
+        ('MONTHLY', 'Mensal'),
+        ('YEARLY', 'Anual'),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    description = models.CharField('Descrição', max_length=255)
+    amount = models.DecimalField('Valor', max_digits=15, decimal_places=2)
+    type = models.CharField('Tipo', max_length=7, choices=(('EXPENSE', 'Despesa'), ('INCOME', 'Receita')))
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    payment_method = models.CharField('Método de Pagamento', max_length=10, choices=Transaction.PAYMENT_METHOD_CHOICES)
+    
+    frequency = models.CharField('Frequência', max_length=10, choices=FREQUENCY_CHOICES, default='MONTHLY')
+    start_date = models.DateField('Data de Início')
+    end_date = models.DateField('Data de Término (Opcional)', null=True, blank=True)
+    last_generated_date = models.DateField(null=True, blank=True) # Controle do sistema
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = 'Transação Recorrente'
+        verbose_name_plural = 'Transações Recorrentes'
+
+    def __str__(self):
+        return f"{self.description} ({self.get_frequency_display()})"
