@@ -9,9 +9,12 @@ class UserRegistrationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Aplicar classes Tailwind em todos os campos automaticamente
+        # Aplicar classes Tailwind e REMOVER o help_text
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none'
+            field.widget.attrs['class'] = 'w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all'
+            
+            # Esta linha remove aqueles textos de validação de senha
+            field.help_text = ""
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
