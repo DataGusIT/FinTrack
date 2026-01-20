@@ -7,6 +7,7 @@ from django.db.models import Q, Count, Sum
 import csv
 from django.http import HttpResponse
 from datetime import datetime 
+from django.contrib import messages
 
 @login_required
 def transaction_create(request):
@@ -48,6 +49,15 @@ def transaction_delete(request, pk):
         return redirect('dashboard:index')
     
     return render(request, 'expenses/transaction_confirm_delete.html', {'transaction': transaction})
+
+@login_required
+def transaction_pay(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk, user=request.user)
+    if transaction.status == 'PENDING':
+        transaction.status = 'PAID'
+        transaction.save()
+        messages.success(request, f"'{transaction.description}' marcada como paga!")
+    return redirect(request.META.get('HTTP_REFERER', 'expenses:transaction_list'))
 
 @login_required
 def transaction_list(request):
