@@ -1,87 +1,81 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}FinTrack / Recorrentes / Nova{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <!-- Cabeçalho com Contexto -->
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Configurar Automação</h2>
-        <p class="text-sm text-gray-500">Defina transações que se repetem para facilitar seu controle.</p>
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800">Configurar Nova Automação</h2>
+        <p class="text-sm text-gray-500">O sistema criará automaticamente as transações no seu extrato baseando-se nestas regras.</p>
     </div>
 
-    <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-blue-600">
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
         <form method="post">
             {% csrf_token %}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Descrição (Ocupa 2 colunas) -->
+                <!-- Descrição -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Descrição</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Descrição da Conta</label>
                     {{ form.description }}
                     {% if form.description.errors %}<p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>{% endif %}
                 </div>
 
-                <!-- Valor -->
+                <!-- Valor e Tipo -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Valor</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Valor da Parcela</label>
                     {{ form.amount }}
-                    {% if form.amount.errors %}<p class="text-red-500 text-xs mt-1">{{ form.amount.errors.0 }}</p>{% endif %}
                 </div>
-
-                <!-- Tipo -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Tipo</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tipo</label>
                     {{ form.type }}
                 </div>
 
-                <!-- Categoria -->
+                <!-- Categoria e Pagamento -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Categoria</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Categoria</label>
                     {{ form.category }}
                 </div>
-
-                <!-- Método de Pagamento -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Forma de Pagamento</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Método Padrão</label>
                     {{ form.payment_method }}
                 </div>
 
-                <!-- Frequência -->
+                <!-- Frequência e Datas -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Frequência</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Periodicidade</label>
                     {{ form.frequency }}
                 </div>
-
-                <!-- Data de Início -->
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Data de Início</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Data do Primeiro Lançamento</label>
                     {{ form.start_date }}
                 </div>
 
-                <!-- Data de Término (Opcional) -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Data de Término (Opcional)</label>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Data de Término (Opcional)</label>
                     {{ form.end_date }}
-                    <p class="text-[10px] text-gray-400 mt-1 italic">Deixe em branco se a conta for contínua.</p>
+                    <p class="text-[10px] text-gray-400 mt-2 italic">Útil para financiamentos ou contratos com prazo determinado.</p>
                 </div>
             </div>
 
-            <!-- Botões -->
-            <div class="mt-8 flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
-                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
-                    Ativar Automação
+            <div class="mt-10 flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                    <i class="fas fa-check-circle mr-2"></i>Ativar Automação
                 </button>
-                <a href="{% url 'expenses:recurring_list' %}" class="flex-1 bg-gray-100 text-center text-gray-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-200 transition">
+                <a href="{% url 'expenses:recurring_list' %}" class="flex-1 bg-gray-50 text-center text-gray-500 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition border border-gray-100">
                     Cancelar
                 </a>
             </div>
         </form>
     </div>
 
-    <!-- Card Informativo -->
-    <div class="mt-6 bg-blue-50 p-4 rounded-lg flex items-start">
-        <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
-        <p class="text-xs text-blue-700 leading-relaxed">
-            <strong>Como funciona:</strong> O sistema criará transações pendentes automaticamente sempre que a data de vencimento chegar. Você só precisará marcar como "Pago" no seu extrato.
+    <!-- Dica UX -->
+    <div class="mt-8 bg-blue-50/50 border border-blue-100 p-4 rounded-xl flex items-center">
+        <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mr-4">
+            <i class="fas fa-lightbulb"></i>
+        </div>
+        <p class="text-xs text-blue-700 leading-relaxed font-medium">
+            <strong>Dica:</strong> Transações automáticas são criadas como <span class="underline">Pendentes</span>. 
+            Isso permite que você confirme o valor exato no seu extrato bancário antes de marcar como "Pago".
         </p>
     </div>
 </div>
