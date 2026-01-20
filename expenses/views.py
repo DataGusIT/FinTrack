@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Transaction, Category, Budget, RecurringTransaction
 from .forms import TransactionForm, CategoryForm, BudgetForm, RecurringTransactionForm
 from .utils import generate_recurring_transactions
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 import csv
 from django.http import HttpResponse
 from datetime import datetime 
@@ -93,9 +93,15 @@ def transaction_list(request):
 
 # --- VIEWS DE CATEGORIA ---
 
+from django.db.models import Count, Sum
+
 @login_required
 def category_list(request):
-    categories = Category.objects.filter(user=request.user)
+    categories = Category.objects.filter(user=request.user).annotate(
+        transaction_count=Count('transactions'),
+        total_amount=Sum('transactions__amount')
+    ).order_by('name')
+    
     return render(request, 'expenses/category_list.html', {'categories': categories})
 
 @login_required

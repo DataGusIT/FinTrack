@@ -2,27 +2,70 @@
 {% block breadcrumb %}FinTrack / Categorias{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Minhas Categorias</h2>
-    <a href="{% url 'expenses:category_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
-        <i class="fas fa-plus mr-2"></i>Nova Categoria
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800">Minhas Categorias</h2>
+        <p class="text-sm text-gray-500">Organize seus fluxos financeiros por grupos personalizados.</p>
+    </div>
+    <a href="{% url 'expenses:category_create' %}" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition flex items-center shadow-lg shadow-blue-200">
+        <i class="fas fa-plus mr-2 text-xs"></i>Nova Categoria
     </a>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for cat in categories %}
-    <div class="bg-white p-4 rounded-xl shadow-sm border-t-4 flex justify-between items-center" style="border-color: {{ cat.color }};">
-        <div>
-            <h4 class="font-bold text-lg">{{ cat.name }}</h4>
-            <span class="text-xs uppercase text-gray-500">{{ cat.get_type_display }}</span>
+    <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+        <!-- Linha de cor decorativa superior -->
+        <div class="absolute top-0 left-0 w-full h-1" style="background-color: {{ cat.color }};"></div>
+
+        <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center">
+                <!-- Ícone da Categoria -->
+                <div class="h-12 w-12 rounded-xl flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-110" style="background-color: {{ cat.color }};">
+                    <i class="fas {{ cat.icon|default:'fa-tag' }} text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h4 class="font-bold text-gray-800 text-lg">{{ cat.name }}</h4>
+                    <span class="text-[10px] font-bold uppercase tracking-wider {% if cat.type == 'EXPENSE' %}text-red-500 bg-red-50{% else %}text-green-500 bg-green-50{% endif %} px-2 py-0.5 rounded-lg">
+                        {{ cat.get_type_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Ações -->
+            <div class="flex space-x-1">
+                <a href="{% url 'expenses:category_update' cat.pk %}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Editar">
+                    <i class="fas fa-edit text-xs"></i>
+                </a>
+                <a href="{% url 'expenses:category_delete' cat.pk %}" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Excluir">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                </a>
+            </div>
         </div>
-        <div class="space-x-2">
-            <a href="{% url 'expenses:category_update' cat.pk %}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></a>
-            <a href="{% url 'expenses:category_delete' cat.pk %}" class="text-red-600 hover:text-red-900"><i class="fas fa-trash-alt"></i></a>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="grid grid-cols-2 gap-4 mt-6 pt-4 border-t border-gray-50">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Movimentações</p>
+                <p class="text-sm font-semibold text-gray-700">{{ cat.transaction_count }} registros</p>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Volume Total</p>
+                <p class="text-sm font-semibold text-gray-700">R$ {{ cat.total_amount|default:"0,00" }}</p>
+            </div>
         </div>
     </div>
     {% empty %}
-    <p class="col-span-3 text-center text-gray-500 py-10">Você ainda não criou categorias.</p>
+    <div class="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-gray-100">
+        <div class="bg-gray-50 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-folder-open text-3xl text-gray-300"></i>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800">Nenhuma categoria encontrada</h3>
+        <p class="text-gray-500 mb-6">Comece criando categorias como Alimentação, Lazer ou Salário.</p>
+        <a href="{% url 'expenses:category_create' %}" class="inline-flex items-center text-blue-600 font-bold hover:underline">
+            Criar minha primeira categoria <i class="fas fa-arrow-right ml-2 text-xs"></i>
+        </a>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}
