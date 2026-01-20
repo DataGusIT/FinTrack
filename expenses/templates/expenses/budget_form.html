@@ -1,22 +1,54 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}FinTrack / Orçamentos / {% if is_edit %}Editar{% else %}Nova Meta{% endif %}{% endblock %}
+
 {% block content %}
-<div class="max-w-lg mx-auto bg-white p-8 rounded-xl shadow-md">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">{% if is_edit %}Editar{% else %}Nova{% endif %} Meta Financeira</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="space-y-4">
-            {% for field in form %}
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}<p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>{% endif %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800">{% if is_edit %}Ajustar Meta{% else %}Nova Meta Financeira{% endif %}</h2>
+        <p class="text-sm text-gray-500">Defina o limite máximo que deseja gastar nesta categoria.</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Categoria -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Categoria da Despesa</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}<p class="text-red-500 text-xs mt-1">{{ form.category.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Valor -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Limite Mensal (R$)</label>
+                    {{ form.amount }}
+                    {% if form.amount.errors %}<p class="text-red-500 text-xs mt-1">{{ form.amount.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Ano -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Ano de Vigência</label>
+                    {{ form.year }}
+                </div>
+
+                <!-- Mês -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Mês de Vigência</label>
+                    {{ form.month }}
+                </div>
             </div>
-            {% endfor %}
-        </div>
-        <div class="mt-8 flex space-x-4">
-            <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">Salvar Meta</button>
-            <a href="{% url 'expenses:budget_list' %}" class="flex-1 bg-gray-200 text-center px-4 py-2 rounded-lg font-bold hover:bg-gray-300 transition text-gray-700">Cancelar</a>
-        </div>
-    </form>
+
+            <div class="mt-10 flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                    Salvar Meta
+                </button>
+                <a href="{% url 'expenses:budget_list' %}" class="flex-1 bg-gray-50 text-center text-gray-500 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition border border-gray-100">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

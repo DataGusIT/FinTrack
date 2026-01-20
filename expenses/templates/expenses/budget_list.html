@@ -2,40 +2,81 @@
 {% block breadcrumb %}FinTrack / Orçamentos{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Metas de Gastos (Orçamentos)</h2>
-    <a href="{% url 'expenses:budget_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
-        <i class="fas fa-bullseye mr-2"></i>Definir Nova Meta
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800">Metas Financeiras</h2>
+        <p class="text-sm text-gray-500">Acompanhe seu limite de gastos planejado para cada categoria.</p>
+    </div>
+    <a href="{% url 'expenses:budget_create' %}" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition flex items-center shadow-lg shadow-blue-200">
+        <i class="fas fa-bullseye mr-2 text-xs"></i>Definir Nova Meta
     </a>
 </div>
 
-<div class="bg-white rounded-xl shadow-sm overflow-hidden">
-    <table class="w-full text-left">
-        <thead class="bg-gray-50 text-gray-600 text-sm uppercase">
-            <tr>
-                <th class="px-6 py-4">Categoria</th>
-                <th class="px-6 py-4">Mês/Ano</th>
-                <th class="px-6 py-4">Limite</th>
-                <th class="px-6 py-4 text-center">Ações</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y">
-            {% for b in budgets %}
-            <tr>
-                <td class="px-6 py-4 font-bold" style="color: {{ b.category.color }};">{{ b.category.name }}</td>
-                <td class="px-6 py-4 text-gray-600">{{ b.month }}/{{ b.year }}</td>
-                <td class="px-6 py-4 font-bold text-gray-800">R$ {{ b.amount }}</td>
-                <td class="px-6 py-4 text-center space-x-3">
-                    <a href="{% url 'expenses:budget_update' b.pk %}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-edit"></i></a>
-                    <a href="{% url 'expenses:budget_delete' b.pk %}" class="text-red-600 hover:text-red-900"><i class="fas fa-trash-alt"></i></a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="px-6 py-10 text-center text-gray-500">Nenhuma meta definida ainda.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for b in budgets %}
+    <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group">
+        <!-- Badge de Mês/Ano -->
+        <div class="absolute top-4 right-4 px-2 py-1 bg-gray-50 text-gray-400 text-[10px] font-bold rounded uppercase">
+            {{ b.month }}/{{ b.year }}
+        </div>
+
+        <div class="flex items-center mb-6">
+            <div class="h-12 w-12 rounded-xl flex items-center justify-center text-white shadow-sm" style="background-color: {{ b.category.color }};">
+                <i class="fas {{ b.category.icon|default:'fa-wallet' }} text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h4 class="font-bold text-gray-800 text-lg">{{ b.category.name }}</h4>
+                <p class="text-xs text-gray-400">Meta Mensal</p>
+            </div>
+        </div>
+
+        <!-- Valores -->
+        <div class="flex justify-between items-end mb-2">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gasto Atual</span>
+                <span class="text-xl font-bold {% if b.is_over %}text-red-500{% else %}text-gray-800{% endif %}">
+                    R$ {{ b.spent|floatformat:2 }}
+                </span>
+            </div>
+            <div class="text-right">
+                <span class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Limite</span>
+                <span class="text-sm font-semibold text-gray-600">R$ {{ b.amount|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <!-- Barra de Progresso Grande -->
+        <div class="w-full bg-gray-100 rounded-full h-3 mb-4">
+            <div class="h-3 rounded-full transition-all duration-500 {% if b.is_over %}bg-red-500 animate-pulse{% else %}bg-green-500{% endif %}" 
+                 style="width: {{ b.percent|stringformat:'f'|safe }}%"></div>
+        </div>
+
+        <!-- Info de Restante e Ações -->
+        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
+            <div class="text-xs">
+                {% if b.is_over %}
+                    <span class="text-red-500 font-bold"><i class="fas fa-warning mr-1"></i> Limite excedido em R$ {{ b.spent|add:0|floatformat:2 }}</span>
+                {% else %}
+                    <span class="text-gray-500 italic">Você ainda pode gastar <strong class="text-green-600">R$ {{ b.remaining|floatformat:2 }}</strong></span>
+                {% endif %}
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="{% url 'expenses:budget_update' b.id %}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                    <i class="fas fa-edit text-xs"></i>
+                </a>
+                <a href="{% url 'expenses:budget_delete' b.id %}" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                    <i class="fas fa-trash-alt text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-gray-100">
+        <i class="fas fa-bullseye text-4xl text-gray-200 mb-4 block"></i>
+        <h3 class="text-lg font-bold text-gray-800">Nenhuma meta definida</h3>
+        <p class="text-gray-500 mb-6">Planeje seus gastos mensais para ter mais controle.</p>
+        <a href="{% url 'expenses:budget_create' %}" class="text-blue-600 font-bold hover:underline">Criar primeiro orçamento</a>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
