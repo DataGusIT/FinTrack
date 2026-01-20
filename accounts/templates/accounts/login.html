@@ -55,20 +55,15 @@
 
                 <form method="post" class="space-y-4">
                     {% csrf_token %}
-                    {% if form.non_field_errors %}
-                    <div class="bg-red-50 border border-red-100 p-3 rounded-xl mb-4">
-                        <p class="text-red-600 text-[10px] font-bold flex items-center">
-                            <i class="fas fa-circle-exclamation mr-2"></i> {{ form.non_field_errors.0 }}
-                        </p>
-                    </div>
-                    {% endif %}
 
                     {% for field in form %}
                     <div class="flex flex-col">
                         <label class="h-4 flex items-end text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">
                             {{ field.label }}
                         </label>
-                        {{ field }}
+                        <div class="relative">
+                            {{ field }}
+                        </div>
                     </div>
                     {% endfor %}
 
@@ -124,19 +119,28 @@
         </div>
     </div>
 
-    <!-- MINI FOOTER -->
-    <footer class="mt-12 z-20 flex flex-col items-center">
-        <div class="flex items-center space-x-6 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-            <a href="#" class="hover:text-blue-500 transition-colors">Termos</a>
-            <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
-            <a href="#" class="hover:text-blue-500 transition-colors">Privacidade</a>
-            <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
-            <a href="#" class="hover:text-blue-500 transition-colors">Suporte</a>
-        </div>
-        <p class="mt-4 text-[9px] font-medium text-slate-400 uppercase tracking-widest opacity-60">
-            &copy; 2026 FinTrack Dashboard. Built for excellence.
-        </p>
-    </footer>
-
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Captura erros gerais (como Usuário ou Senha incorretos)
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                showToast("{{ error|escapejs }}", "error");
+            {% endfor %}
+        {% endif %}
+
+        // 2. Captura erros específicos de campos (como 'Usuário já existe' ou 'Senha curta')
+        {% for field in form %}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    // Formata: "Nome do Campo: Mensagem de Erro"
+                    showToast("{{ field.label|escapejs }}: {{ error|escapejs }}", "error");
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    });
+</script>
 {% endblock %}

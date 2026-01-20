@@ -14,37 +14,59 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <script>
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const config = {
+                error: { bg: 'border-red-500', icon: 'fa-circle-exclamation', text: 'text-red-600', title: 'Opa!' },
+                success: { bg: 'border-green-500', icon: 'fa-check-circle', text: 'text-green-600', title: 'Sucesso!' },
+                info: { bg: 'border-blue-500', icon: 'fa-info-circle', text: 'text-blue-600', title: 'Aviso' }
+            };
+
+            const c = config[type] || config.error;
+
+            toast.className = `flex items-center w-80 p-4 bg-white/90 backdrop-blur-md border-l-4 ${c.bg} rounded-xl shadow-2xl transform transition-all duration-500 translate-x-full opacity-0`;
+            
+            toast.innerHTML = `
+                <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-white shadow-sm flex items-center justify-center ${c.text}">
+                    <i class="fas ${c.icon} text-lg"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-xs font-black text-slate-800 uppercase tracking-widest">${c.title}</p>
+                    <p class="text-xs font-medium text-slate-500 mt-0.5">${message}</p>
+                </div>
+                <button class="ml-4 text-slate-300 hover:text-slate-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full', 'opacity-0'), 100);
+            const timer = setTimeout(() => removeToast(toast), 10000);
+            toast.querySelector('button').onclick = () => {
+                clearTimeout(timer);
+                removeToast(toast);
+            };
+        }
+
+        function removeToast(toast) {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => toast.remove(), 500);
+        }
+    </script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        /* Transição Suave */
         #sidebar { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* Estado Colapsado PADRÃO */
         .sidebar-collapsed { width: 80px !important; }
-
-        /* Esconder Elementos no Colapso */
-        .sidebar-collapsed .logo-container,
-        .sidebar-collapsed .nav-text,
-        .sidebar-collapsed .user-info,
-        .sidebar-collapsed .logout-text { 
-            display: none !important; 
-        }
-        
-        /* Ajustes Alinhamento Sidebar Fechada */
+        .sidebar-collapsed .logo-container, .sidebar-collapsed .nav-text, .sidebar-collapsed .user-info, .sidebar-collapsed .logout-text { display: none !important; }
         .sidebar-collapsed .sidebar-header { justify-content: center; padding-left: 0; padding-right: 0; }
         .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
         .sidebar-collapsed .nav-icon { margin-right: 0; font-size: 1.2rem; }
         .sidebar-collapsed .sidebar-footer { padding: 1rem 0.5rem; align-items: center; justify-content: center; }
-
-        /* Link Ativo */
-        .sidebar-active { 
-            color: #3b82f6 !important; 
-            background-color: #eff6ff; 
-            border-right: 4px solid #3b82f6; 
-        }
-
-        /* Scrollbar Customizada */
+        .sidebar-active { color: #3b82f6 !important; background-color: #eff6ff; border-right: 4px solid #3b82f6; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -54,65 +76,32 @@
 <body class="bg-gray-50 flex h-screen overflow-hidden">
 
     {% if user.is_authenticated %}
-    <!-- SIDEBAR (Inicia com a classe de colapso) -->
     <aside id="sidebar" class="sidebar-collapsed fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 lg:static lg:inset-0 flex flex-col shadow-sm">
-        
-        <!-- Header Sidebar -->
         <div class="sidebar-header flex items-center justify-between h-20 px-6 border-b border-gray-100 overflow-hidden">
             <div class="logo-container flex items-center">
-                <!-- Logo Oficial -->
-            <img src="{% static 'image/logo.png' %}" alt="FinTrack Logo" class="h-21 w-auto object-contain">
+                <img src="{% static 'image/logo.png' %}" alt="FinTrack Logo" class="h-22 w-auto object-contain">
             </div>
-            <button id="sidebar-toggle" class="text-gray-400 hover:text-blue-600 focus:outline-none p-2 rounded-lg hover:bg-gray-50">
+            <button id="sidebar-toggle" class="text-gray-400 hover:text-blue-600 p-2 rounded-lg hover:bg-gray-50">
                 <i class="fas fa-bars text-lg"></i>
             </button>
         </div>
 
-        <!-- Menu -->
         <nav class="flex-1 overflow-y-auto py-6">
             <ul class="space-y-2">
-                <li>
-                    <a href="{% url 'dashboard:index' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if request.resolver_match.url_name == 'index' %}sidebar-active{% endif %}" title="Dashboard">
-                        <i class="fas fa-th-large w-6 nav-icon mr-3"></i>
-                        <span class="nav-text font-semibold text-sm">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'expenses:transaction_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'transaction_list' in request.path %}sidebar-active{% endif %}" title="Extrato">
-                        <i class="fas fa-list-ul w-6 nav-icon mr-3"></i>
-                        <span class="nav-text font-semibold text-sm">Extrato</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'expenses:category_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'category' in request.path %}sidebar-active{% endif %}" title="Categorias">
-                        <i class="fas fa-tags w-6 nav-icon mr-3"></i>
-                        <span class="nav-text font-semibold text-sm">Categorias</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'expenses:budget_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'budget' in request.path %}sidebar-active{% endif %}" title="Orçamentos">
-                        <i class="fas fa-bullseye w-6 nav-icon mr-3"></i>
-                        <span class="nav-text font-semibold text-sm">Orçamentos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'expenses:recurring_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'recurring' in request.path %}sidebar-active{% endif %}" title="Recorrentes">
-                        <i class="fas fa-redo w-6 nav-icon mr-3"></i>
-                        <span class="nav-text font-semibold text-sm">Recorrentes</span>
-                    </a>
-                </li>
+                <li><a href="{% url 'dashboard:index' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if request.resolver_match.url_name == 'index' %}sidebar-active{% endif %}"><i class="fas fa-th-large w-6 nav-icon mr-3"></i><span class="nav-text font-semibold text-sm">Dashboard</span></a></li>
+                <li><a href="{% url 'expenses:transaction_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'transaction_list' in request.path %}sidebar-active{% endif %}"><i class="fas fa-list-ul w-6 nav-icon mr-3"></i><span class="nav-text font-semibold text-sm">Extrato</span></a></li>
+                <li><a href="{% url 'expenses:category_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'category' in request.path %}sidebar-active{% endif %}"><i class="fas fa-tags w-6 nav-icon mr-3"></i><span class="nav-text font-semibold text-sm">Categorias</span></a></li>
+                <li><a href="{% url 'expenses:budget_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'budget' in request.path %}sidebar-active{% endif %}"><i class="fas fa-bullseye w-6 nav-icon mr-3"></i><span class="nav-text font-semibold text-sm">Orçamentos</span></a></li>
+                <li><a href="{% url 'expenses:recurring_list' %}" class="nav-item flex items-center px-6 py-3 text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition {% if 'recurring' in request.path %}sidebar-active{% endif %}"><i class="fas fa-redo w-6 nav-icon mr-3"></i><span class="nav-text font-semibold text-sm">Recorrentes</span></a></li>
             </ul>
         </nav>
 
-        <!-- Footer Sidebar -->
         <div class="sidebar-footer p-4 border-t border-gray-100 bg-gray-50/50">
-            <a href="{% url 'accounts:settings' %}" class="nav-item flex items-center p-2 rounded-xl hover:bg-white hover:shadow-sm transition mb-4" title="Configurações">
+            <a href="{% url 'accounts:settings' %}" class="nav-item flex items-center p-2 rounded-xl hover:bg-white hover:shadow-sm transition mb-4">
                 {% if user.profile_picture %}
-                    <img src="{{ user.profile_picture.url }}" class="w-10 h-10 rounded-full object-cover shadow-sm border-2 border-white">
+                    <img src="{{ user.profile_picture.url }}" class="w-10 h-10 rounded-full object-cover border-2 border-white">
                 {% else %}
-                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">
-                        {{ user.username|slice:":2"|upper }}
-                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">{{ user.username|slice:":2"|upper }}</div>
                 {% endif %}
                 <div class="ml-3 user-info overflow-hidden">
                     <p class="text-xs font-bold text-gray-800 truncate">{{ user.username }}</p>
@@ -121,117 +110,90 @@
             </a>
             <form action="{% url 'accounts:logout' %}" method="post">
                 {% csrf_token %}
-                <button type="submit" class="nav-item w-full flex items-center justify-center px-4 py-2 text-xs font-bold text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition">
-                    <i class="fas fa-sign-out-alt nav-icon"></i>
-                    <span class="logout-text ml-2">Sair do Sistema</span>
+                <button type="submit" class="nav-item w-full flex items-center justify-center px-4 py-2 text-xs font-bold text-red-500 bg-red-50 rounded-lg hover:bg-red-100">
+                    <i class="fas fa-sign-out-alt nav-icon"></i><span class="logout-text ml-2">Sair</span>
                 </button>
             </form>
         </div>
     </aside>
     {% endif %}
 
-    <!-- ÁREA DE CONTEÚDO -->
+    <!-- ÁREA DE CONTEÚDO (Header + Main + Footer) -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
-        <!-- HEADER SUPERIOR COM MAIS COMPONENTES -->
         {% if user.is_authenticated %}
         <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-40">
-            
-            <!-- Esquerda: Breadcrumb e Busca -->
             <div class="flex items-center space-x-8">
                 <div class="text-sm font-medium text-gray-400 flex items-center">
-                    <i class="fas fa-home mr-2 text-xs"></i>
-                    {% block breadcrumb %}FinTrack / Dashboard{% endblock %}
+                    <i class="fas fa-home mr-2 text-xs"></i>{% block breadcrumb %}FinTrack / Dashboard{% endblock %}
                 </div>
-                
-                <!-- Barra de Busca Rápida -->
                 <div class="hidden xl:flex items-center bg-gray-100 px-3 py-1.5 rounded-lg border border-transparent focus-within:border-blue-300 focus-within:bg-white transition-all">
                     <i class="fas fa-search text-gray-400 text-xs mr-2"></i>
                     <form action="{% url 'expenses:transaction_list' %}" method="get">
-                        <input type="text" name="search" placeholder="Buscar transação..." class="bg-transparent border-none text-xs focus:ring-0 w-48">
+                        <input type="text" name="search" placeholder="Buscar..." class="bg-transparent border-none text-xs focus:ring-0 w-48">
                     </form>
                 </div>
             </div>
-            
-            <!-- Direita: Stats Rápidos e Notificações -->
             <div class="flex items-center space-x-6">
-                <!-- Data Atual -->
                 <div class="hidden lg:flex flex-col items-end border-r pr-6 border-gray-100">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Data de Hoje</span>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Hoje</span>
                     <span class="text-xs font-semibold text-gray-700">{% now "D, d M Y" %}</span>
                 </div>
-
-                <!-- Info Moeda -->
-                <div class="hidden sm:flex flex-col items-center px-3 py-1 bg-blue-50 rounded-lg">
-                    <span class="text-[9px] font-bold text-blue-400 uppercase">Moeda</span>
-                    <span class="text-xs font-bold text-blue-600">{{ user.preferred_currency|default:"BRL" }}</span>
+                <div class="h-9 w-9 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 relative cursor-pointer hover:text-blue-600 transition">
+                    <i class="far fa-bell text-lg"></i>
+                    <span class="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
                 </div>
-
-                <!-- Notificações -->
-                <div class="relative group cursor-pointer">
-                    <div class="h-9 w-9 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all">
-                        <i class="far fa-bell text-lg"></i>
-                        <span class="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
-                    </div>
-                </div>
-
-                <!-- Atalho Rápido Configurações -->
-                <a href="{% url 'accounts:settings' %}" class="h-9 w-9 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:text-gray-800 transition-all">
-                    <i class="fas fa-cog"></i>
-                </a>
             </div>
         </header>
         {% endif %}
 
-        <!-- MAIN SCROLL -->
-        <main class="flex-1 overflow-y-auto p-8 scroll-smooth">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="mb-6 p-4 rounded-xl shadow-md border-l-4 flex items-center animate-bounce-short 
-                        {% if message.tags == 'success' %}bg-green-50 text-green-700 border-green-500{% else %}bg-red-50 text-red-700 border-red-500{% endif %}">
-                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mr-3 text-lg"></i>
-                        <span class="text-sm font-medium">{{ message }}</span>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        <!-- ÁREA SCROLLÁVEL -->
+        <div class="flex-1 overflow-y-auto flex flex-col">
+            <main class="flex-1 p-8">
+                {% if messages %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            {% for message in messages %}
+                                showToast("{{ message }}", "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}");
+                            {% endfor %}
+                        });
+                    </script>
+                {% endif %}
+                <div class="animate-fade-in">{% block content %}{% endblock %}</div>
+            </main>
 
-            <!-- Conteúdo da Página -->
-            <div class="animate-fade-in">
-                {% block content %}{% endblock %}
-            </div>
-        </main>
+            <!-- MINI FOOTER INTEGRADO NO FINAL DO CONTEÚDO -->
+            <footer class="p-8 mt-auto flex flex-col items-center border-t border-gray-100 bg-white/50">
+                <div class="flex items-center space-x-6 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                    <a href="#" class="hover:text-blue-500 transition-colors">Termos</a>
+                    <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
+                    <a href="#" class="hover:text-blue-500 transition-colors">Privacidade</a>
+                    <div class="h-1 w-1 bg-slate-300 rounded-full"></div>
+                    <a href="#" class="hover:text-blue-500 transition-colors">Suporte</a>
+                </div>
+                <p class="mt-4 text-[9px] font-medium text-slate-400 uppercase tracking-widest opacity-60 text-center">
+                    &copy; 2026 FinTrack Dashboard. Built with Django & Tailwind.
+                </p>
+            </footer>
+        </div>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- CONTAINER DE TOASTS -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-3"></div>
+
     <script>
         const btn = document.getElementById('sidebar-toggle');
         const sidebar = document.getElementById('sidebar');
-
-        // Lógica de Persistência do Estado da Sidebar
-        // Se for a primeira vez, inicia colapsada. Se o usuário mudar, salva no localStorage.
         const storageValue = localStorage.getItem('sidebar-collapsed');
         
-        if (storageValue === 'false') {
-            sidebar.classList.remove('sidebar-collapsed');
-        } else {
-            sidebar.classList.add('sidebar-collapsed');
-        }
+        if (storageValue === 'false') sidebar.classList.remove('sidebar-collapsed');
+        else sidebar.classList.add('sidebar-collapsed');
 
         btn.addEventListener('click', () => {
             sidebar.classList.toggle('sidebar-collapsed');
             localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('sidebar-collapsed'));
         });
-
-        // Adiciona classe de animação simples via JS
-        document.addEventListener('DOMContentLoaded', () => {
-            const mainContent = document.querySelector('main');
-            mainContent.style.opacity = '0';
-            setTimeout(() => {
-                mainContent.style.transition = 'opacity 0.5s ease-in-out';
-                mainContent.style.opacity = '1';
-            }, 100);
-        });
     </script>
-
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
