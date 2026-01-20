@@ -139,8 +139,41 @@ def category_delete(request, pk):
 
 @login_required
 def budget_list(request):
-    budgets = Budget.objects.filter(user=request.user).order_by('-year', '-month')
-    return render(request, 'expenses/budget_list.html', {'budgets': budgets})
+    # Buscamos todos os orçamentos do usuário
+    budgets_query = Budget.objects.filter(user=request.user).order_by('-year', '-month')
+    
+    enhanced_budgets = []
+    
+    for b in budgets_query:
+        # Soma os gastos REAIS para aquela categoria no mês/ano do orçamento
+        spent = Transaction.objects.filter(
+            user=request.user,
+            category=b.category,
+            type='EXPENSE',
+            date__month=b.month,
+            date__year=b.year
+        ).aggregate(Sum('amount'))['amount__sum'] or 0
+        
+        # Cálculos de progresso
+        spent_float = float(spent)
+        limit_float = float(b.amount)
+        percent = (spent_float / limit_float) * 100 if limit_float > 0 else 0
+        remaining = limit_float - spent_float
+        
+        enhanced_budgets.append({
+            'id': b.id,
+            'category': b.category,
+            'month': b.month,
+            'year': b.year,
+            'amount': b.amount,
+            'spent': spent_float,
+            'percent': min(percent, 100), # Para a barra não quebrar
+            'real_percent': percent,
+            'remaining': max(remaining, 0),
+            'is_over': percent > 100,
+        })
+        
+    return render(request, 'expenses/budget_list.html', {'budgets': enhanced_budgets})
 
 @login_required
 def budget_create(request):
