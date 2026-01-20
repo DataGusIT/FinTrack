@@ -1,33 +1,66 @@
 {% extends 'base.html' %}
+{% block breadcrumb %}FinTrack / Transações / {% if is_edit %}Editar{% else %}Nova{% endif %}{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white p-8 rounded-xl shadow-md">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">Nova Transação</h2>
-        
+    <div class="mb-8 text-center">
+        <h2 class="text-3xl font-bold text-gray-800">{% if is_edit %}Ajustar Registro{% else %}Novo Lançamento{% endif %}</h2>
+        <p class="text-sm text-gray-500 mt-2">Preencha os detalhes da sua movimentação financeira.</p>
+    </div>
+
+    <div class="bg-white p-10 rounded-3xl shadow-sm border border-gray-100">
         <form method="post">
             {% csrf_token %}
             
-            <div class="space-y-4">
-                {% for field in form %}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ field.label }}
-                    </label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                    {% endif %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Descrição -->
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">O que você comprou ou recebeu?</label>
+                    {{ form.description }}
                 </div>
-                {% endfor %}
+
+                <!-- Valor -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Valor da Transação</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 font-bold text-xs">R$</span>
+                        {{ form.amount }}
+                    </div>
+                </div>
+
+                <!-- Data -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Data</label>
+                    {{ form.date }}
+                </div>
+
+                <!-- Tipo e Categoria -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tipo de Fluxo</label>
+                    {{ form.type }}
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Categoria</label>
+                    {{ form.category }}
+                </div>
+
+                <!-- Pagamento e Status -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Como foi pago/recebido?</label>
+                    {{ form.payment_method }}
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Status do Lançamento</label>
+                    {{ form.status }}
+                </div>
             </div>
 
-            <div class="mt-8 flex space-x-4">
-                <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
-                    Salvar Transação
+            <div class="mt-12 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <button type="submit" class="flex-1 bg-blue-600 text-white px-6 py-3.5 rounded-2xl font-bold hover:bg-blue-700 transition shadow-xl shadow-blue-100 flex items-center justify-center">
+                    <i class="fas fa-check-circle mr-2"></i> Confirmar Lançamento
                 </button>
-                <a href="{% url 'dashboard:index' %}" class="flex-1 bg-gray-200 text-center text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-300 transition">
-                    Cancelar
+                <a href="{% url 'expenses:transaction_list' %}" class="flex-1 bg-gray-50 text-center text-gray-500 px-6 py-3.5 rounded-2xl font-bold hover:bg-gray-100 transition border border-gray-100">
+                    Descartar
                 </a>
             </div>
         </form>

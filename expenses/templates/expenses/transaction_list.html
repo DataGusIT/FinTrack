@@ -1,146 +1,183 @@
 {% extends 'base.html' %}
-{% block breadcrumb %}FinTrack / Extrato{% endblock %}
+{% block breadcrumb %}FinTrack / Extrato Financeiro{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row gap-6">
+<div class="flex flex-col xl:flex-row gap-8">
     
-    <!-- Barra Lateral de Filtros -->
-    <aside class="w-full md:w-64 bg-white p-6 rounded-xl shadow-sm h-fit">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-gray-800 flex items-center">
-                <i class="fas fa-filter mr-2 text-blue-600"></i> Filtros
-            </h3>
+    <!-- Barra Lateral de Filtros (Mais Compacta) -->
+    <aside class="w-full xl:w-72 flex-none">
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sticky top-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-sliders-h mr-2 text-blue-600"></i> Filtros Avançados
+                </h3>
+            </div>
+            
+            <form method="get" class="space-y-5">
+                <!-- Busca -->
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Descrição</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                            <i class="fas fa-search text-xs"></i>
+                        </span>
+                        <input type="text" name="search" value="{{ filter_data.search|default:'' }}" placeholder="Buscar..." 
+                               class="w-full pl-9 p-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 xl:grid-cols-1 gap-4">
+                    <!-- Tipo -->
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Fluxo</label>
+                        <select name="type" class="w-full p-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="">Todos</option>
+                            <option value="EXPENSE" {% if filter_data.type == 'EXPENSE' %}selected{% endif %}>Despesa</option>
+                            <option value="INCOME" {% if filter_data.type == 'INCOME' %}selected{% endif %}>Receita</option>
+                        </select>
+                    </div>
+
+                    <!-- Categoria -->
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">Categoria</label>
+                        <select name="category" class="w-full p-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="">Todas</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if filter_data.category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Período -->
+                <div class="space-y-3 pt-2 border-t border-gray-50">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Período Personalizado</label>
+                    <input type="date" name="start_date" value="{{ filter_data.start_date|default:'' }}" class="w-full p-2.5 bg-gray-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+                    <input type="date" name="end_date" value="{{ filter_data.end_date|default:'' }}" class="w-full p-2.5 bg-gray-50 border-none rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="pt-4 space-y-3">
+                    <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-100 flex items-center justify-center">
+                        <i class="fas fa-sync-alt mr-2 text-xs"></i> Atualizar Lista
+                    </button>
+                    <a href="{% url 'expenses:transaction_list' %}" class="block text-center w-full text-gray-400 text-xs font-bold hover:text-gray-600 transition">
+                        Limpar todos os filtros
+                    </a>
+                </div>
+            </form>
         </div>
-        
-        <form method="get" class="space-y-4">
-            <!-- Busca por Texto -->
-            <div>
-                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Descrição</label>
-                <input type="text" name="search" value="{{ filter_data.search|default:'' }}" placeholder="Ex: Mercado..." class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-
-            <!-- Tipo -->
-            <div>
-                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tipo</label>
-                <select name="type" class="w-full p-2 border rounded-lg text-sm">
-                    <option value="">Todos</option>
-                    <option value="EXPENSE" {% if filter_data.type == 'EXPENSE' %}selected{% endif %}>Despesa</option>
-                    <option value="INCOME" {% if filter_data.type == 'INCOME' %}selected{% endif %}>Receita</option>
-                </select>
-            </div>
-
-            <!-- Categoria -->
-            <div>
-                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Categoria</label>
-                <select name="category" class="w-full p-2 border rounded-lg text-sm">
-                    <option value="">Todas</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.id }}" {% if filter_data.category == cat.id|stringformat:"i" %}selected{% endif %}>{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Período -->
-            <div class="grid grid-cols-1 gap-2">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Início</label>
-                    <input type="date" name="start_date" value="{{ filter_data.start_date|default:'' }}" class="w-full p-2 border rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fim</label>
-                    <input type="date" name="end_date" value="{{ filter_data.end_date|default:'' }}" class="w-full p-2 border rounded-lg text-sm">
-                </div>
-            </div>
-
-            <div class="pt-4 space-y-2">
-                <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
-                    Aplicar Filtros
-                </button>
-                <a href="{% url 'expenses:transaction_list' %}" class="block text-center w-full bg-gray-50 text-gray-500 p-2 rounded-lg font-bold hover:bg-gray-100 transition">
-                    Limpar
-                </a>
-            </div>
-        </form>
     </aside>
 
-    <!-- Lista de Resultados -->
-    <div class="flex-1 bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="p-6 border-b flex justify-between items-center bg-white">
-            <h3 class="text-lg font-bold text-gray-800">Histórico de Movimentações</h3>
-            
-            <div class="flex items-center space-x-4">
-                <!-- BOTÃO DE EXPORTAÇÃO -->
-                <a href="{% url 'expenses:export_csv' %}?{{ request.GET.urlencode }}" 
-                class="text-xs font-bold text-green-600 hover:text-green-700 flex items-center bg-green-50 px-3 py-2 rounded-lg transition">
-                    <i class="fas fa-file-excel mr-2"></i> Exportar CSV
-                </a>
+    <!-- Lista Principal (Estilo Banking) -->
+    <div class="flex-1">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <!-- Header da Tabela -->
+            <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Movimentações</h3>
+                    <p class="text-xs text-gray-400 font-medium">Exibindo {{ transactions.count }} registros encontrados</p>
+                </div>
                 
-                <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold">
-                    {{ transactions.count }} registros
-                </span>
+                <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <a href="{% url 'expenses:export_csv' %}?{{ request.GET.urlencode }}" 
+                       class="flex-1 sm:flex-none text-center bg-green-50 text-green-600 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-green-100 transition border border-green-100">
+                        <i class="fas fa-file-csv mr-2"></i> Exportar
+                    </a>
+                    <a href="{% url 'expenses:create' %}" class="flex-1 sm:flex-none text-center bg-blue-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-md shadow-blue-100">
+                        <i class="fas fa-plus mr-1"></i> Nova
+                    </a>
+                </div>
             </div>
-        </div>
-        
-        <div class="overflow-x-auto">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase tracking-wider">
-                    <tr>
-                        <th class="px-6 py-4 font-bold">Descrição / Método</th>
-                        <th class="px-6 py-4 font-bold text-center">Status</th>
-                        <th class="px-6 py-4 font-bold">Data</th>
-                        <th class="px-6 py-4 font-bold text-right">Valor</th>
-                        <th class="px-6 py-4 font-bold text-center">Ações</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y text-sm">
-                    <!-- AJUSTE AQUI: Mudamos recent_transactions para transactions -->
-                    {% for tx in transactions %}
-                    <tr class="hover:bg-gray-50 transition {% if tx.status == 'CANCELLED' %}opacity-50{% endif %}">
-                        <td class="px-6 py-4">
-                            <div class="font-bold {% if tx.status == 'CANCELLED' %}line-through{% endif %} text-gray-800">{{ tx.description }}</div>
-                            <div class="text-[10px] text-gray-400 flex items-center mt-1">
-                                {% if tx.payment_method == 'CREDIT' or tx.payment_method == 'DEBIT' %}
-                                    <i class="fas fa-credit-card mr-1 text-blue-400"></i>
-                                {% elif tx.payment_method == 'PIX' %}
-                                    <i class="fas fa-bolt mr-1 text-purple-400"></i>
-                                {% elif tx.payment_method == 'CASH' %}
-                                    <i class="fas fa-money-bill-wave mr-1 text-green-400"></i>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50 text-gray-400 text-[10px] uppercase tracking-[0.15em] font-bold">
+                        <tr>
+                            <th class="px-8 py-4">Detalhes da Transação</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                            <th class="px-6 py-4">Data</th>
+                            <th class="px-6 py-4 text-right">Valor</th>
+                            <th class="px-8 py-4 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        {% for tx in transactions %}
+                        <tr class="hover:bg-blue-50/30 transition group {% if tx.status == 'CANCELLED' %}bg-gray-50/50{% endif %}">
+                            <td class="px-8 py-5">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm" style="background-color: {{ tx.category.color }}">
+                                        {% if tx.payment_method == 'CREDIT' or tx.payment_method == 'DEBIT' %}
+                                            <i class="fas fa-credit-card text-sm"></i>
+                                        {% elif tx.payment_method == 'PIX' %}
+                                            <i class="fas fa-bolt text-sm"></i>
+                                        {% elif tx.payment_method == 'CASH' %}
+                                            <i class="fas fa-money-bill-wave text-sm"></i>
+                                        {% else %}
+                                            <i class="fas fa-wallet text-sm"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-gray-800 {% if tx.status == 'CANCELLED' %}line-through text-gray-400{% endif %}">{{ tx.description }}</div>
+                                        <div class="text-[11px] text-gray-400 font-medium flex items-center mt-0.5">
+                                            <span class="uppercase">{{ tx.get_payment_method_display }}</span>
+                                            <span class="mx-2 text-gray-200">|</span>
+                                            <span style="color: {{ tx.category.color }}">{{ tx.category.name }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-center">
+                                {% if tx.status == 'PAID' %}
+                                    <span class="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold border border-green-100">EFETIVADO</span>
+                                {% elif tx.status == 'PENDING' %}
+                                    <span class="px-3 py-1 bg-amber-50 text-amber-600 rounded-full text-[10px] font-bold border border-amber-100">AGUARDANDO</span>
                                 {% else %}
-                                    <i class="fas fa-wallet mr-1"></i>
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-400 rounded-full text-[10px] font-bold border border-gray-200">CANCELADO</span>
                                 {% endif %}
-                                {{ tx.get_payment_method_display }}
-                                <span class="mx-1">•</span>
-                                <span style="color: {{ tx.category.color }}">{{ tx.category.name }}</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            {% if tx.status == 'PAID' %}
-                                <span class="px-2 py-1 bg-green-50 text-green-700 rounded text-[10px] font-bold border border-green-100 italic">PAGO</span>
-                            {% elif tx.status == 'PENDING' %}
-                                <span class="px-2 py-1 bg-yellow-50 text-yellow-700 rounded text-[10px] font-bold border border-yellow-100 italic">PENDENTE</span>
-                            {% else %}
-                                <span class="px-2 py-1 bg-gray-50 text-gray-400 rounded text-[10px] font-bold border border-gray-100 italic">CANCELADO</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 text-gray-500 text-xs font-medium">{{ tx.date|date:"d/m/Y" }}</td>
-                        <td class="px-6 py-4 text-right font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-500{% endif %}">
-                            {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
-                        </td>
-                        <td class="px-6 py-4 text-center space-x-2">
-                            <a href="{% url 'expenses:update' tx.pk %}" class="text-blue-400 hover:text-blue-600 transition"><i class="fas fa-edit"></i></a>
-                            <a href="{% url 'expenses:delete' tx.pk %}" class="text-red-300 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="px-6 py-16 text-center">
-                            <i class="fas fa-search text-gray-200 text-5xl mb-4 block"></i>
-                            <p class="text-gray-400">Nenhuma transação encontrada com esses filtros.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </td>
+                            <td class="px-6 py-5">
+                                <p class="text-sm font-semibold text-gray-600">{{ tx.date|date:"d M, Y" }}</p>
+                            </td>
+                            <td class="px-6 py-5 text-right">
+                                <p class="text-base font-bold {% if tx.type == 'EXPENSE' %}text-red-500{% else %}text-green-600{% endif %}">
+                                    {% if tx.type == 'EXPENSE' %}-{% else %}+{% endif %} R$ {{ tx.amount }}
+                                </p>
+                            </td>
+                            <td class="px-8 py-5 text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <!-- Ação Rápida: Pagar -->
+                                    {% if tx.status == 'PENDING' %}
+                                    <form action="{% url 'expenses:pay' tx.pk %}" method="post" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="h-8 w-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition flex items-center justify-center shadow-sm" title="Marcar como Pago">
+                                            <i class="fas fa-check text-xs"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+
+                                    <a href="{% url 'expenses:update' tx.pk %}" class="h-8 w-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-blue-600 hover:text-white transition flex items-center justify-center" title="Editar">
+                                        <i class="fas fa-pen text-xs"></i>
+                                    </a>
+                                    <a href="{% url 'expenses:delete' tx.pk %}" class="h-8 w-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-red-500 hover:text-white transition flex items-center justify-center" title="Excluir">
+                                        <i class="fas fa-trash-alt text-xs"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-24 text-center">
+                                <div class="h-20 w-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-receipt text-3xl text-gray-200"></i>
+                                </div>
+                                <h3 class="text-gray-800 font-bold">Nenhuma transação encontrada</h3>
+                                <p class="text-gray-400 text-sm mt-1">Ajuste os filtros para realizar uma nova busca.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
