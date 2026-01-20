@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -6,6 +7,8 @@
     <title>FinTrack - Sistema Financeiro Inteligente</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Favicon Oficial -->
+    <link rel="icon" type="image/png" href="{% static 'image/favicon.png' %}">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -56,9 +59,9 @@
         
         <!-- Header Sidebar -->
         <div class="sidebar-header flex items-center justify-between h-20 px-6 border-b border-gray-100 overflow-hidden">
-            <div class="logo-container flex items-center text-blue-600">
-                <i class="fas fa-chart-line text-2xl"></i>
-                <span class="logo-text ml-3 font-bold text-xl tracking-tight">FinTrack</span>
+            <div class="logo-container flex items-center">
+                <!-- Logo Oficial -->
+            <img src="{% static 'image/logo.png' %}" alt="FinTrack Logo" class="h-21 w-auto object-contain">
             </div>
             <button id="sidebar-toggle" class="text-gray-400 hover:text-blue-600 focus:outline-none p-2 rounded-lg hover:bg-gray-50">
                 <i class="fas fa-bars text-lg"></i>
