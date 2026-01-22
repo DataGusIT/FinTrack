@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}FinTrack / Categorias / Excluir{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <!-- Card de Confirmação -->
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 text-center">
+        
+        <!-- Ícone de Alerta -->
+        <div class="h-20 w-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-tags text-3xl"></i>
+        </div>
+
+        <h2 class="text-2xl font-black text-gray-800 mb-4 tracking-tight">Excluir Categoria?</h2>
+        
+        <p class="text-gray-500 text-sm mb-2 leading-relaxed">
+            Você está prestes a remover a categoria <strong class="text-slate-800">"{{ category.name }}"</strong>.
+        </p>
+        
+        <!-- Aviso de Impacto -->
+        <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl mb-8 text-[10px] text-amber-700 font-medium">
+            <i class="fas fa-info-circle mr-1"></i> 
+            Atenção: Transações vinculadas a esta categoria não serão apagadas, mas ficarão marcadas como "Sem Categoria".
+        </div>
+        
+        <!-- Formulário de Deleção -->
+        <form method="post" class="flex flex-col gap-3">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-red-500 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-600 transition shadow-lg shadow-red-100 active:scale-95">
+                Confirmar Exclusão
+            </button>
+            <a href="{% url 'expenses:category_list' %}" class="w-full bg-gray-50 text-gray-500 px-6 py-4 rounded-2xl font-bold text-center hover:bg-gray-100 transition">
+                Manter Categoria
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

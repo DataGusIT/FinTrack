@@ -141,10 +141,14 @@ def category_update(request, pk):
 
 @login_required
 def category_delete(request, pk):
+    # Busca a categoria garantindo que seja do usuário logado
     category = get_object_or_404(Category, pk=pk, user=request.user)
+    
     if request.method == 'POST':
         category.delete()
+        messages.success(request, "Categoria excluída com sucesso!")
         return redirect('expenses:category_list')
+    
     return render(request, 'expenses/category_confirm_delete.html', {'category': category})
 
 @login_required
