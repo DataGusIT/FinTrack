@@ -16,10 +16,10 @@ O projeto utiliza uma arquitetura robusta em Django, garantindo total isolamento
 
 ## 🖼️ Demonstração Visual (UI Premium)
 
-| Dashboard Analítico | Gestão de Orçamentos | Contas Recorrentes |
+| Dashboard Analítico | Gestão de Orçamentos | Extrato de Contas |
 | :---: | :---: | :---: |
 | <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/af65e22a-057a-4735-a310-db79cbf9b8a0" /> | <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/1585c5d7-b182-4a1f-90fd-0e9a81438267" /> | <img width="1918" height="1074" alt="Image" src="https://github.com/user-attachments/assets/29197feb-5039-4559-bfc8-e3e939ac4130" /> |
-| **Interface de Login** | **Controle de Categorias** | **Relatórios em CSV** |
+| **Interface de Login** | **Controle de Categorias** | **Contas Recorrentes** |
 | <img width="1919" height="1079" alt="Image" src="https://github.com/user-attachments/assets/7ef95fa8-9a61-4c0a-97ed-54ef0d867745" /> | <img width="1918" height="1074" alt="Image" src="https://github.com/user-attachments/assets/94c43b25-424e-4937-9a00-d928aba41f18" /> | <img width="1919" height="1077" alt="Image" src="https://github.com/user-attachments/assets/d673a9af-5219-4321-af4b-78cc3c56cdf2" /> |
 
 ## ✨ Funcionalidades Principais
