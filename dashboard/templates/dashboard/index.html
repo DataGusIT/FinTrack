@@ -27,7 +27,7 @@
         </div>
         <div class="flex flex-col">
             <h3 class="text-3xl font-bold text-gray-800 tracking-tight">
-                {{ symbol }} {{ balance }}
+                {{ symbol }} {{ balance|floatformat:2 }}
             </h3>
             <div class="flex items-center mt-2">
                 <span class="text-[10px] font-medium {% if balance > 0 %}text-green-500{% else %}text-red-500{% endif %} bg-opacity-10 px-2 py-0.5 rounded">
@@ -48,7 +48,7 @@
         </div>
         <div class="flex flex-col">
             <h3 class="text-3xl font-bold text-green-600 tracking-tight">
-                + {{ symbol }} {{ total_income }}
+                + {{ symbol }} {{ total_income|floatformat:2 }}
             </h3>
             <p class="text-[10px] text-gray-400 mt-2">Entradas confirmadas no mês</p>
         </div>
@@ -64,7 +64,7 @@
         </div>
         <div class="flex flex-col">
             <h3 class="text-3xl font-bold text-red-600 tracking-tight">
-                - {{ symbol }} {{ total_expense }}
+                - {{ symbol }} {{ total_expense|floatformat:2 }}
             </h3>
             <div class="flex items-center mt-2">
                 <!-- Barra de Progresso Corrigida -->
@@ -87,7 +87,7 @@
     <div class="flex items-center">
         <i class="fas fa-clock text-yellow-500 mr-3 text-xl"></i>
         <p class="text-sm text-yellow-700">
-            Atenção: Você possui <span class="font-bold">R$ {{ pending_expenses }}</span> em contas pendentes para este mês.
+            Atenção: Você possui <span class="font-bold">R$ {{ symbol }} {{ pending_expenses|floatformat:2 }}</span> em contas pendentes para este mês.
         </p>
     </div>
     <span class="text-xs font-bold text-yellow-600 uppercase">Aguardando Pagamento</span>
