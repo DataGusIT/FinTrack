@@ -221,7 +221,9 @@ def budget_delete(request, pk):
     budget = get_object_or_404(Budget, pk=pk, user=request.user)
     if request.method == 'POST':
         budget.delete()
+        messages.success(request, "Meta removida com sucesso!")
         return redirect('expenses:budget_list')
+    
     return render(request, 'expenses/budget_confirm_delete.html', {'budget': budget})
 
 @login_required
