@@ -51,7 +51,7 @@
             </div>
             <div>
                 <p class="text-[10px] font-bold text-gray-400 uppercase">Volume Total</p>
-                <p class="text-sm font-semibold text-gray-700">R$ {{ cat.total_amount|default:"0,00" }}</p>
+                <p class="text-sm font-semibold text-gray-700">R$ {{ symbol }} {{ cat.total_amount|default:"0,00"|floatformat:2 }}</p>
             </div>
         </div>
     </div>
