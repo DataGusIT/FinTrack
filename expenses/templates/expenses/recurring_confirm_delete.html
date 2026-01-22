@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block breadcrumb %}FinTrack / Recorrentes / Excluir{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white p-10 rounded-[2.5rem] shadow-sm border border-gray-100 text-center">
+        <div class="h-20 w-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-magic text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-black text-gray-800 mb-4 tracking-tight">Encerrar Automação?</h2>
+        <p class="text-gray-500 text-sm mb-8 leading-relaxed">
+            Você está prestes a excluir a automação <strong>"{{ recurring.description }}"</strong>. 
+            As transações já geradas no extrato <span class="text-slate-800 font-bold">não</span> serão apagadas.
+        </p>
+        
+        <form method="post" class="flex flex-col gap-3">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-red-500 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-red-600 transition shadow-lg shadow-red-100">
+                Confirmar Exclusão
+            </button>
+            <a href="{% url 'expenses:recurring_list' %}" class="w-full bg-gray-50 text-gray-500 px-6 py-4 rounded-2xl font-bold text-center hover:bg-gray-100 transition">
+                Manter Automação
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

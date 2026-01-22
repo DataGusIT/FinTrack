@@ -246,6 +246,35 @@ def recurring_create(request):
     return render(request, 'expenses/recurring_form.html', {'form': form})
 
 @login_required
+def recurring_update(request, pk):
+    # Busca a recorrência garantindo que pertença ao usuário
+    rec = get_object_or_404(RecurringTransaction, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = RecurringTransactionForm(request.POST, instance=rec, user=request.user)
+        if form.is_valid():
+            form.save()
+            # Ao editar, rodamos a geração para garantir que as datas estejam certas
+            generate_recurring_transactions() 
+            messages.success(request, "Automação atualizada com sucesso!")
+            return redirect('expenses:recurring_list')
+    else:
+        form = RecurringTransactionForm(instance=rec, user=request.user)
+    
+    return render(request, 'expenses/recurring_form.html', {'form': form, 'is_edit': True})
+
+@login_required
+def recurring_delete(request, pk):
+    rec = get_object_or_404(RecurringTransaction, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        rec.delete()
+        messages.success(request, "Automação removida com sucesso!")
+        return redirect('expenses:recurring_list')
+    
+    return render(request, 'expenses/recurring_confirm_delete.html', {'recurring': rec})
+
+@login_required
 def export_transactions_csv(request):
     # 1. Pegamos os dados filtrados (reutilizando a lógica da listagem)
     transactions = Transaction.objects.filter(user=request.user)

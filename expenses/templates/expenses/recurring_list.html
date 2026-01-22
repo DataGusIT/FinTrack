@@ -58,9 +58,17 @@
                 </div>
                 
                 <div class="flex space-x-1">
-                    <!-- Botões de ação (Adicione as views de editar/deletar se já as tiver) -->
-                    <button class="p-2 text-gray-300 hover:text-blue-600 transition"><i class="fas fa-edit text-xs"></i></button>
-                    <button class="p-2 text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                    <!-- Botão Editar -->
+                    <a href="{% url 'expenses:recurring_update' rec.pk %}" 
+                    class="p-2 text-gray-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Editar">
+                        <i class="fas fa-edit text-xs"></i>
+                    </a>
+                    
+                    <!-- Botão Deletar -->
+                    <a href="{% url 'expenses:recurring_delete' rec.pk %}" 
+                    class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition" title="Excluir">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </a>
                 </div>
             </div>
         </div>
